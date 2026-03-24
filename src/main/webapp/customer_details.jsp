@@ -82,6 +82,40 @@
             border-color: #e0e0e0;
             font-weight: 400;
         }
+        /* Payment mode badges */
+        .pay-cash {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #e8f5e9;
+            color: #1b5e20;
+            border: 1px solid #a5d6a7;
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .pay-online {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #e3f2fd;
+            color: #0d47a1;
+            border: 1px solid #90caf9;
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .pay-na {
+            display: inline-block;
+            background: #f5f5f5;
+            color: #aaa;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -146,6 +180,7 @@
                     <th>Type</th>
                     <th>Product / Item</th>
                     <th>Quantity</th>
+                    <th>Payment Mode</th>
                     <th>Amount (₹)</th>
                 </tr>
             </thead>
@@ -162,9 +197,10 @@
 
                     while (rs.next()) {
                         hasTxn = true;
-                        String type     = rs.getString("transaction_type");
-                        String prodName = rs.getString("product_name");
-                        int    qty      = rs.getInt("quantity");  // 0 for SETTLE rows
+                        String type        = rs.getString("transaction_type");
+                        String prodName    = rs.getString("product_name");
+                        int    qty         = rs.getInt("quantity");
+                        String paymentMode = rs.getString("payment_mode"); // may be null for old ADD rows
                         if (prodName == null || prodName.trim().isEmpty()) prodName = "—";
                         boolean isAdd = "ADD".equals(type);
             %>
@@ -193,6 +229,21 @@
                         <span class="qty-pill na">—</span>
                         <% } %>
                     </td>
+                    <td>
+                        <%
+                            if (!isAdd && paymentMode != null) {
+                                if ("CASH".equals(paymentMode)) {
+                        %>
+                        <span class="pay-cash">💵 Cash</span>
+                        <%          } else if ("ONLINE".equals(paymentMode)) { %>
+                        <span class="pay-online">📱 Online</span>
+                        <%          } else { %>
+                        <span class="pay-na"><%= paymentMode %></span>
+                        <%          }
+                            } else { %>
+                        <span class="pay-na">—</span>
+                        <%  } %>
+                    </td>
                     <td style="font-weight:700; color:<%= isAdd ? "#2e7d32" : "#c62828" %>;">
                         ₹ <%= String.format("%.2f", rs.getDouble("amount")) %>
                     </td>
@@ -202,14 +253,14 @@
                     if (!hasTxn) {
             %>
                 <tr>
-                    <td colspan="7" class="no-data">No transactions found for this customer.</td>
+                    <td colspan="8" class="no-data">No transactions found for this customer.</td>
                 </tr>
             <%
                     }
                 } catch (Exception e) {
             %>
                 <tr>
-                    <td colspan="7" class="no-data">❌ Error: <%= e.getMessage() %></td>
+                    <td colspan="8" class="no-data">❌ Error: <%= e.getMessage() %></td>
                 </tr>
             <%
                 }
