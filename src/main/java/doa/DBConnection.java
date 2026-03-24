@@ -8,15 +8,13 @@ public class DBConnection {
 
     public static Connection getConnection() {
         try {
-            // Step 1: Load the Oracle JDBC Driver
             Class.forName("oracle.jdbc.driver.OracleDriver");
 
-            // Step 2: Create connection using JDBC URL, username, password
             if (conn == null || conn.isClosed()) {
                 conn = DriverManager.getConnection(
-                    "jdbc:oracle:thin:@192.168.1.152:1521:xe", // database URL
-                    "spring",                              // username
-                    "info123"                        // password
+                    "jdbc:oracle:thin:@//192.168.1.110:1521/XEPDB1",
+                    "spring",
+                    "info123"
                 );
             }
         } catch (Exception e) {
@@ -25,4 +23,3 @@ public class DBConnection {
         return conn;
     }
 }
-  
