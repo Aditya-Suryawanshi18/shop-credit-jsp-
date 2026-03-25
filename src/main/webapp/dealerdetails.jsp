@@ -12,7 +12,7 @@
     }
     int dealerId = Integer.parseInt(dealerIdStr);
 
-    String dealerName = "", dealerPhone = "";
+    String dealerName = "", dealerPhone = "", dealerAddress = "";
     double dealerCredit = 0;
     int txnCount = 0;
     double totalAdded = 0, totalSettled = 0;
@@ -22,9 +22,11 @@
         ps.setInt(1, dealerId);
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
-            dealerName   = rs.getString("name");
-            dealerPhone  = rs.getString("phone");
-            dealerCredit = rs.getDouble("credit");
+            dealerName    = rs.getString("name");
+            dealerPhone   = rs.getString("phone");
+            dealerCredit  = rs.getDouble("credit");
+            dealerAddress = rs.getString("address");
+            if (dealerAddress == null || dealerAddress.trim().isEmpty()) dealerAddress = "—";
         }
         PreparedStatement psTxn = conn.prepareStatement(
             "SELECT COUNT(*), " +
@@ -60,7 +62,6 @@
             background: #fef3e2;
             color: #b45309;
         }
-        /* Quantity pill — green for dealer (stock added) */
         .qty-pill {
             display: inline-block;
             background: #e8f5e9;
@@ -82,7 +83,6 @@
             border-color: #e0e0e0;
             font-weight: 400;
         }
-        /* Payment mode badges */
         .pay-cash {
             display: inline-flex;
             align-items: center;
@@ -116,6 +116,15 @@
             padding: 3px 12px;
             font-size: 12px;
         }
+        /* Address item in the info card */
+        .info-item.address-item .info-value {
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            color: #2b0d73 !important;
+            max-width: 260px;
+            white-space: normal;
+            line-height: 1.45;
+        }
     </style>
 </head>
 <body>
@@ -137,6 +146,10 @@
         <div class="info-item">
             <span class="info-label">Phone</span>
             <span class="info-value">📞 <%= dealerPhone %></span>
+        </div>
+        <div class="info-item address-item">
+            <span class="info-label">Address</span>
+            <span class="info-value">📍 <%= dealerAddress %></span>
         </div>
         <div class="info-item">
             <span class="info-label">Current Credit</span>

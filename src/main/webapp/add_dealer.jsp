@@ -14,8 +14,6 @@
 </head>
 <body>
 
-
-
 <div class="form-container">
 
     <% if (request.getParameter("error") != null) { %>
@@ -47,6 +45,14 @@
                 </div>
 
                 <div class="form-group full-width">
+                    <label for="address">Address <span style="color:#e53935;">*</span></label>
+                    <textarea id="address" name="address"
+                              placeholder="Enter full address (street, area, city...)"
+                              required maxlength="255" rows="3"
+                              style="resize:vertical;"></textarea>
+                </div>
+
+                <div class="form-group full-width">
                     <label for="credit">Initial Credit Amount (₹) <span style="color:#e53935;">*</span></label>
                     <input type="number" id="credit" name="credit"
                            placeholder="0.00" step="0.01" min="0" required>
@@ -73,12 +79,14 @@
 
 <script>
 function validateForm() {
-    var name  = document.getElementById('name').value.trim();
-    var phone = document.getElementById('phone').value.trim();
-    var cred  = document.getElementById('credit').value;
+    var name    = document.getElementById('name').value.trim();
+    var phone   = document.getElementById('phone').value.trim();
+    var address = document.getElementById('address').value.trim();
+    var cred    = document.getElementById('credit').value;
 
-    if (!name) { alert('⚠️ Please enter dealer name.'); return false; }
+    if (!name)            { alert('⚠️ Please enter dealer name.');       return false; }
     if (phone.length !== 10) { alert('⚠️ Phone must be exactly 10 digits.'); return false; }
+    if (!address)         { alert('⚠️ Please enter dealer address.');    return false; }
     if (!cred || parseFloat(cred) < 0) { alert('⚠️ Please enter a valid credit amount.'); return false; }
     return true;
 }

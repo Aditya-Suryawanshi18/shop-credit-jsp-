@@ -59,7 +59,6 @@
     <div class="alert alert-error">❌ <%= request.getParameter("error") %></div>
     <% } %>
 
-    <!-- Search Bar -->
     <form class="search-bar" action="view_dealers.jsp" method="get">
         <input type="text" name="keyword" placeholder="🔍 Search by Name, Phone or ID"
                value="<%= hasKeyword ? keyword : "" %>">
@@ -67,7 +66,6 @@
         <a href="view_dealers.jsp" class="btn-reset">Reset</a>
     </form>
 
-    <!-- Table -->
     <div class="table-container">
         <table>
             <thead>

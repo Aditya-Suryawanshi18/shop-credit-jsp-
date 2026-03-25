@@ -15,7 +15,6 @@
     <title>View Customers</title>
     <link rel="stylesheet" href="css/content.css">
     <style>
-        /* Eye toggle */
         .btn-eye {
             background: none; border: none; cursor: pointer;
             padding: 3px 5px; color: #7c73b8;
@@ -26,7 +25,6 @@
         .btn-eye:hover { color: #2b0d73; background: #ede9ff; }
         .btn-eye svg   { display: block; pointer-events: none; }
 
-        /* Action nav buttons */
         .btn-action-add {
             padding: 6px 16px;
             background: linear-gradient(135deg, #4caf50, #2e7d32);
@@ -63,7 +61,6 @@
     <div class="alert alert-error">❌ <%= request.getParameter("error") %></div>
     <% } %>
 
-    <!-- Search Bar -->
     <form class="search-bar" action="view_customers.jsp" method="get">
         <input type="text" name="keyword" placeholder="🔍 Search by Name, Phone or ID"
                value="<%= hasKeyword ? keyword : "" %>">
@@ -71,7 +68,6 @@
         <a href="view_customers.jsp" class="btn-reset">Reset</a>
     </form>
 
-    <!-- Table -->
     <div class="table-container">
         <table>
             <thead>

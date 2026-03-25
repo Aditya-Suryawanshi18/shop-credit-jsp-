@@ -75,21 +75,6 @@
         .qty-ok   { background: #e8f5e9; color: #2e7d32; }
         .qty-low  { background: #fff3e0; color: #e65100; }
         .qty-zero { background: #ffebee; color: #c62828; }
-        /* ── Inline qty update ── */
-        .qty-form { display: flex; align-items: center; gap: 6px; justify-content: center; }
-        .qty-form input[type="number"] {
-            width: 80px;
-            padding: 5px 8px;
-            border: 2px solid #d4cef7;
-            border-radius: 6px;
-            font-size: 13px;
-            outline: none;
-            text-align: center;
-            -moz-appearance: textfield;
-            background: #f5f3ff;
-        }
-        .qty-form input[type="number"]::-webkit-inner-spin-button,
-        .qty-form input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
         /* ── Delete btn ── */
         .btn-delete {
             padding: 5px 12px;
@@ -158,7 +143,6 @@
                     <th>Product ID</th>
                     <th>Product Name</th>
                     <th>Quantity</th>
-                    <th>Update Quantity</th>
                     <th>Delete</th>
                 </tr>
             </thead>
@@ -200,16 +184,6 @@
                         <span style="font-size:11px; color:#999; margin-left:4px;">(<%= qtyLabel %>)</span>
                     </td>
                     <td>
-                        <form action="UpdateProductServlet" method="post">
-                            <input type="hidden" name="id" value="<%= id %>">
-                            <div class="qty-form">
-                                <input type="number" name="quantity"
-                                       placeholder="New qty" min="0" required>
-                                <button type="submit" class="btn-add">Update</button>
-                            </div>
-                        </form>
-                    </td>
-                    <td>
                         <form action="DeleteProductServlet" method="post"
                               onsubmit="return confirm('Delete product: <%= pname %>?')">
                             <input type="hidden" name="id" value="<%= id %>">
@@ -221,16 +195,15 @@
                     }
                     if (!hasData) {
             %>
-                <tr><td colspan="6" class="no-data">⚠ No products found. Add your first product above.</td></tr>
+                <tr><td colspan="5" class="no-data">⚠ No products found. Add your first product above.</td></tr>
             <%
                     }
                 } catch (Exception e) {
             %>
                 <tr>
-                    <td colspan="6" class="no-data">
+                    <td colspan="5" class="no-data">
                         ❌ Error: <%= e.getMessage() %><br>
-                        <small style="color:#888;">Make sure the <code>products</code> table exists.
-                        See SQL setup instructions.</small>
+                        <small style="color:#888;">Make sure the <code>products</code> table exists.</small>
                     </td>
                 </tr>
             <%
@@ -263,7 +236,7 @@
             <div class="s-label">In Stock</div>
             <div class="s-value"><%= inStock %></div>
         </div>
-        <div class="stat-chip" style="">
+        <div class="stat-chip">
             <div class="s-label">Low Stock (≤10)</div>
             <div class="s-value" style="color:#e65100;"><%= lowStock %></div>
         </div>

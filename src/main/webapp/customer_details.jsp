@@ -12,7 +12,7 @@
     }
     int customerId = Integer.parseInt(idStr);
 
-    String custName = "", custPhone = "";
+    String custName = "", custPhone = "", custAddress = "";
     double custCredit = 0;
     int txnCount = 0;
     double totalAdded = 0, totalSettled = 0;
@@ -22,9 +22,11 @@
         ps.setInt(1, customerId);
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
-            custName   = rs.getString("name");
-            custPhone  = rs.getString("phone");
-            custCredit = rs.getDouble("credit");
+            custName    = rs.getString("name");
+            custPhone   = rs.getString("phone");
+            custCredit  = rs.getDouble("credit");
+            custAddress = rs.getString("address");
+            if (custAddress == null || custAddress.trim().isEmpty()) custAddress = "—";
         }
         PreparedStatement psTxn = conn.prepareStatement(
             "SELECT COUNT(*), " +
@@ -60,7 +62,6 @@
             background: #fef3e2;
             color: #b45309;
         }
-        /* Quantity pill */
         .qty-pill {
             display: inline-block;
             background: #f0f4ff;
@@ -82,7 +83,6 @@
             border-color: #e0e0e0;
             font-weight: 400;
         }
-        /* Payment mode badges */
         .pay-cash {
             display: inline-flex;
             align-items: center;
@@ -116,6 +116,15 @@
             padding: 3px 12px;
             font-size: 12px;
         }
+        /* Address item in the info card */
+        .info-item.address-item .info-value {
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            color: #2b0d73 !important;
+            max-width: 260px;
+            white-space: normal;
+            line-height: 1.45;
+        }
     </style>
 </head>
 <body>
@@ -137,6 +146,10 @@
         <div class="info-item">
             <span class="info-label">Phone</span>
             <span class="info-value">📞 <%= custPhone %></span>
+        </div>
+        <div class="info-item address-item">
+            <span class="info-label">Address</span>
+            <span class="info-value">📍 <%= custAddress %></span>
         </div>
         <div class="info-item">
             <span class="info-label">Current Credit</span>
@@ -200,7 +213,7 @@
                         String type        = rs.getString("transaction_type");
                         String prodName    = rs.getString("product_name");
                         int    qty         = rs.getInt("quantity");
-                        String paymentMode = rs.getString("payment_mode"); // may be null for old ADD rows
+                        String paymentMode = rs.getString("payment_mode");
                         if (prodName == null || prodName.trim().isEmpty()) prodName = "—";
                         boolean isAdd = "ADD".equals(type);
             %>
