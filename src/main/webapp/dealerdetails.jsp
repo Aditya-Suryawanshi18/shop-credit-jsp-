@@ -1,5 +1,17 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.sql.*, doa.DBConnection" %>
+<%!
+// Safe escape for embedding any string inside a JavaScript double-quoted string
+private String jsEscape(String s) {
+    if (s == null) return "";
+    return s.replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("'",  "\\'")
+            .replace("\r", "\\r")
+            .replace("\n", "\\n")
+            .replace("\t", "\\t");
+}
+%>
 <%
     if (session.getAttribute("admin") == null) {
         response.sendRedirect("login.jsp?error=Please login first");
@@ -229,19 +241,19 @@ var allTxns = [
                 ",date:\"" + dateOnly + "\"" +
                 ",displayDate:\"" + displayDate + "\"" +
                 ",type:\"" + rs.getString("transaction_type") + "\"" +
-                ",product:\"" + pn.replace("\"","\\\"") + "\"" +
+                ",product:\"" + jsEscape(pn) + "\"" +
                 ",qty:" + rs.getInt("quantity") +
-                ",paymode:\"" + pm + "\"" +
+                ",paymode:\"" + jsEscape(pm) + "\"" +
                 ",amount:" + rs.getDouble("amount") + "}");
         }
     } catch (Exception e) {}
 %>
 ];
 
-var DEALER_NAME   = "<%= dealerName.replace("\"","\\\"") %>";
+var DEALER_NAME   = "<%= jsEscape(dealerName) %>";
 var DEALER_ID     = "<%= dealerId %>";
-var DEALER_PHONE  = "<%= dealerPhone %>";
-var DEALER_ADDR   = "<%= dealerAddress.replace("\"","\\\"") %>";
+var DEALER_PHONE  = "<%= jsEscape(dealerPhone) %>";
+var DEALER_ADDR   = "<%= jsEscape(dealerAddress) %>";
 var DEALER_CREDIT = "<%= String.format("%.2f", dealerCredit) %>";
 
 function buildPopupHtml(txns, periodLabel, dateStr) {
@@ -316,9 +328,6 @@ function buildPopupHtml(txns, periodLabel, dateStr) {
         '<div class="footer">' + SHOP_NAME + ' &middot; Dealer Transaction Statement &middot; Printed on ' + dateStr + '</div>' +
         '</body></html>';
 }
-
-// ── KEY FIX: use window.top.open() instead of window.open()
-// ── This bypasses the iframe popup restriction in Chrome/Edge ──────────────
 
 function printFiltered() {
     var from = document.getElementById('fromDate').value;
