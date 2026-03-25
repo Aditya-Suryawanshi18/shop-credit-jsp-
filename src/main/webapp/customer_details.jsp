@@ -76,8 +76,6 @@
             color: #2b0d73 !important; max-width: 260px;
             white-space: normal; line-height: 1.45;
         }
-
-        /* Print controls bar */
         .print-controls {
             display: flex; align-items: center; gap: 12px;
             background: #fff; border: 1px solid #e2e8f0;
@@ -157,7 +155,7 @@
         <button class="btn-print-all" onclick="printAll()">Print All Transactions</button>
     </div>
 
-    <!-- Transaction Table (visible on screen) -->
+    <!-- Transaction Table -->
     <h3 style="font-size:16px; color:#373279; font-weight:700; margin-bottom:12px;
                border-bottom:2px solid #c8b7f6; padding-bottom:8px;" class="no-print">
         📊 Transaction History
@@ -230,10 +228,8 @@
 </div>
 
 <script>
-// ── Shop identity (loaded from DB via ShopConfig) ──────────────────────────
 var SHOP_NAME = "<%= shopEnNameJs %>";
 
-// Load all transactions as JS array
 var allTxns = [
 <%
     try (Connection conn = DBConnection.getConnection()) {
@@ -341,6 +337,9 @@ function buildPopupHtml(txns, periodLabel, dateStr) {
         '</body></html>';
 }
 
+// ── KEY FIX: use window.top.open() instead of window.open()
+// ── This bypasses the iframe popup restriction in Chrome/Edge ──────────────
+
 function printFiltered() {
     var from = document.getElementById('fromDate').value;
     var to   = document.getElementById('toDate').value;
@@ -348,7 +347,10 @@ function printFiltered() {
     if (from > to)    { alert('From date cannot be after To date.'); return; }
 
     var filtered = allTxns.filter(function(t) { return t.date >= from && t.date <= to; });
-    if (filtered.length === 0) { alert('No transactions found in the selected date range.'); return; }
+    if (filtered.length === 0) {
+        alert('No transactions found in the selected date range.');
+        return;
+    }
 
     var fromFmt = new Date(from + 'T00:00:00').toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'});
     var toFmt   = new Date(to   + 'T00:00:00').toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'});
@@ -356,7 +358,11 @@ function printFiltered() {
     var dateStr = now.toLocaleDateString('en-IN', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
     var periodLabel = 'Period: ' + fromFmt + ' — ' + toFmt;
 
-    var pw = window.open('', '_blank', 'width=1000,height=700');
+    var pw = window.top.open('', '_blank', 'width=1000,height=700');
+    if (!pw) {
+        alert('⚠️ Popup blocked. Please allow popups for this site in your browser address bar, then try again.');
+        return;
+    }
     pw.document.write(buildPopupHtml(filtered, periodLabel, dateStr));
     pw.document.close();
     pw.focus();
@@ -364,18 +370,26 @@ function printFiltered() {
 }
 
 function printAll() {
+    if (allTxns.length === 0) {
+        alert('No transactions found for this customer.');
+        return;
+    }
+
     var now = new Date();
     var dateStr = now.toLocaleDateString('en-IN', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
     var periodLabel = 'All Transactions &middot; Printed: ' + dateStr;
 
-    var pw = window.open('', '_blank', 'width=1000,height=700');
+    var pw = window.top.open('', '_blank', 'width=1000,height=700');
+    if (!pw) {
+        alert('⚠️ Popup blocked. Please allow popups for this site in your browser address bar, then try again.');
+        return;
+    }
     pw.document.write(buildPopupHtml(allTxns, periodLabel, dateStr));
     pw.document.close();
     pw.focus();
     pw.print();
 }
 
-// Set default dates
 (function() {
     var today = new Date();
     var firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);

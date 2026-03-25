@@ -41,6 +41,9 @@
             totalSettled = rsTxn.getDouble(3);
         }
     } catch (Exception e) { /* ignore */ }
+
+    doa.ShopConfig shop     = doa.ShopConfig.getInstance();
+    String shopEnNameJs     = shop.getEnglishNameJs();
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -58,8 +61,6 @@
         .pay-online { display:inline-flex; align-items:center; gap:4px; background:#e3f2fd; color:#0d47a1; border:1px solid #90caf9; border-radius:20px; padding:3px 12px; font-size:12px; font-weight:700; }
         .pay-na     { display:inline-block; background:#f5f5f5; color:#aaa; border:1px solid #e0e0e0; border-radius:20px; padding:3px 12px; font-size:12px; }
         .info-item.address-item .info-value { font-size:14px !important; font-weight:600 !important; color:#2b0d73 !important; max-width:260px; white-space:normal; line-height:1.45; }
-
-        /* Print controls bar */
         .print-controls {
             display: flex; align-items: center; gap: 12px;
             background: #fff; border: 1px solid #e2e8f0;
@@ -92,7 +93,6 @@
             transition: all 0.2s; white-space: nowrap;
         }
         .btn-print-all:hover { background: #7a3800; color: #fff; }
-
     </style>
 </head>
 <body>
@@ -204,6 +204,8 @@
 </div>
 
 <script>
+var SHOP_NAME = "<%= shopEnNameJs %>";
+
 var allTxns = [
 <%
     try (Connection conn = DBConnection.getConnection()) {
@@ -220,9 +222,8 @@ var allTxns = [
             if (pn == null || pn.trim().isEmpty()) pn = "—";
             String pm = rs.getString("payment_mode");
             if (pm == null) pm = "—";
-            // Use date only for filtering
             java.sql.Timestamp ts = rs.getTimestamp("transaction_date");
-            String dateOnly = ts != null ? ts.toString().substring(0,10) : "";
+            String dateOnly    = ts != null ? ts.toString().substring(0,10) : "";
             String displayDate = ts != null ? ts.toString().substring(0,16) : "";
             out.print("{id:" + rs.getInt("id") +
                 ",date:\"" + dateOnly + "\"" +
@@ -289,7 +290,7 @@ function buildPopupHtml(txns, periodLabel, dateStr) {
         '@media print{body{margin:12px;}}' +
         '</style></head><body>' +
         '<div class="header">' +
-        '<div class="shop-name">Mauali Tredars</div>' +
+        '<div class="shop-name">' + SHOP_NAME + '</div>' +
         '<div class="report-title">Dealer Transaction Statement</div>' +
         '<div class="report-meta">' + periodLabel + '</div>' +
         '</div>' +
@@ -312,9 +313,12 @@ function buildPopupHtml(txns, periodLabel, dateStr) {
         '<td colspan="6" style="text-align:right;">Net for Period</td>' +
         '<td style="text-align:right;">&#8377; ' + net.toFixed(2) + '</td>' +
         '</tr></tfoot></table>' +
-        '<div class="footer">Mauali Tredars &middot; Dealer Transaction Statement &middot; Printed on ' + dateStr + '</div>' +
+        '<div class="footer">' + SHOP_NAME + ' &middot; Dealer Transaction Statement &middot; Printed on ' + dateStr + '</div>' +
         '</body></html>';
 }
+
+// ── KEY FIX: use window.top.open() instead of window.open()
+// ── This bypasses the iframe popup restriction in Chrome/Edge ──────────────
 
 function printFiltered() {
     var from = document.getElementById('fromDate').value;
@@ -323,14 +327,21 @@ function printFiltered() {
     if (from > to)    { alert('From date cannot be after To date.'); return; }
 
     var filtered = allTxns.filter(function(t) { return t.date >= from && t.date <= to; });
-    if (filtered.length === 0) { alert('No transactions found in the selected date range.'); return; }
+    if (filtered.length === 0) {
+        alert('No transactions found in the selected date range.');
+        return;
+    }
 
     var fromFmt = new Date(from + 'T00:00:00').toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'});
     var toFmt   = new Date(to   + 'T00:00:00').toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'});
     var now     = new Date();
     var dateStr = now.toLocaleDateString('en-IN', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
-    var pw = window.open('', '_blank', 'width=1000,height=700');
+    var pw = window.top.open('', '_blank', 'width=1000,height=700');
+    if (!pw) {
+        alert('⚠️ Popup blocked. Please allow popups for this site in your browser address bar, then try again.');
+        return;
+    }
     pw.document.write(buildPopupHtml(filtered, 'Period: ' + fromFmt + ' &mdash; ' + toFmt, dateStr));
     pw.document.close();
     pw.focus();
@@ -338,10 +349,19 @@ function printFiltered() {
 }
 
 function printAll() {
+    if (allTxns.length === 0) {
+        alert('No transactions found for this dealer.');
+        return;
+    }
+
     var now = new Date();
     var dateStr = now.toLocaleDateString('en-IN', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
-    var pw = window.open('', '_blank', 'width=1000,height=700');
+    var pw = window.top.open('', '_blank', 'width=1000,height=700');
+    if (!pw) {
+        alert('⚠️ Popup blocked. Please allow popups for this site in your browser address bar, then try again.');
+        return;
+    }
     pw.document.write(buildPopupHtml(allTxns, 'All Transactions &middot; Printed: ' + dateStr, dateStr));
     pw.document.close();
     pw.focus();
