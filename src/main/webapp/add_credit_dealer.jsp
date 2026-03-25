@@ -344,10 +344,7 @@
 
     <a href="view_dealers.jsp" class="back-link">← Back to Dealers</a>
 
-    <div class="info-banner">
-        💡 <strong>Dealer Stock Logic:</strong> Quantities supplied by the dealer are
-        <strong>added to product stock</strong> when saved.
-    </div>
+
 
     <!-- Dealer Banner -->
     <div class="dealer-card">

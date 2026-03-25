@@ -1,163 +1,258 @@
-/* ═══════════════════════════════════════════════
-   SHOP CREDIT MANAGER — LOGIN CSS
-   ═══════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   MAUALI TREDARS — LOGIN PAGE
+   Premium Fintech Aesthetic · Navy & Gold
+   ═══════════════════════════════════════════════════════════ */
 
-html, body {
-    height: 100%;
-    margin: 0;
-    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-    background: linear-gradient(135deg, #0077b6 0%, #00b4d8 55%, #90e0ef 100%);
-    background-attachment: fixed;
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy-900: #060d1a;
+  --navy-800: #0d1b2a;
+  --navy-700: #162538;
+  --navy-600: #1e3350;
+  --navy-500: #2a4a72;
+  --gold:     #f0a500;
+  --gold-lt:  #fbbf24;
+  --gold-dim: rgba(240,165,0,0.15);
+  --white:    #ffffff;
+  --muted:    rgba(255,255,255,0.55);
+  --surface:  rgba(255,255,255,0.06);
+  --border:   rgba(255,255,255,0.10);
+  --font:     'Outfit', sans-serif;
 }
 
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--navy-800);
+  color: var(--white);
+}
+
+/* ── Background mesh ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(240,165,0,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 90% 80%, rgba(42,74,114,0.45) 0%, transparent 60%),
+    linear-gradient(160deg, #060d1a 0%, #0d1b2a 45%, #162538 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Grid overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(240,165,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(240,165,0,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Layout ── */
 .login-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    min-height: 100vh;
-    padding: 60px 20px 40px;
-    text-align: center;
-    overflow-y: auto;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+  gap: 32px;
 }
 
 /* ── Brand ── */
 .brand-section {
-    margin-bottom: 32px;
-    animation: fadeInDown 0.8s ease;
+  text-align: center;
+  animation: fadeDown 0.7s cubic-bezier(0.22,1,0.36,1) both;
 }
 
 .brand-icon {
-    font-size: 52px;
-    line-height: 1;
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
-    margin-bottom: 12px;
+  font-size: 52px;
+  line-height: 1;
+  filter: drop-shadow(0 4px 16px rgba(240,165,0,0.4));
+  margin-bottom: 14px;
+  display: block;
 }
 
 .brand-title {
-    font-size: 30px;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.25);
-    margin-bottom: 6px;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #fff 30%, #f0a500 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
 }
 
 .brand-sub {
-    font-size: 14px;
-    color: #d0f0ff;
-    font-weight: 400;
-    letter-spacing: 0.5px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.5px;
 }
 
 /* ── Card ── */
 .login-card {
-    background: rgba(255,255,255,0.13);
-    backdrop-filter: blur(14px);
-    border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 20px;
-    padding: 44px 44px 36px;
-    width: 100%;
-    max-width: 440px;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.28);
-    animation: fadeInUp 0.8s ease 0.1s both;
+  background: var(--surface);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 44px 44px 36px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow:
+    0 0 0 1px rgba(240,165,0,0.06),
+    0 32px 80px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.07);
+  animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both;
 }
 
 .login-card h2 {
-    color: #fff;
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 28px;
-    opacity: 0.95;
+  font-size: 20px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.92);
+  margin-bottom: 28px;
+  letter-spacing: 0.3px;
+}
+
+/* ── Alert ── */
+.error-msg {
+  background: rgba(255,71,87,0.12);
+  border: 1px solid rgba(255,71,87,0.3);
+  border-radius: 10px;
+  padding: 11px 14px;
+  color: #ff9aa5;
+  font-size: 13px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.error-msg.success {
+  background: rgba(0,200,150,0.10);
+  border-color: rgba(0,200,150,0.28);
+  color: #6fffd4;
 }
 
 /* ── Fields ── */
 .field-group {
-    margin-bottom: 18px;
-    text-align: left;
+  margin-bottom: 18px;
 }
 
 .field-group label {
-    display: block;
-    color: #d0eeff;
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 7px;
-    letter-spacing: 0.4px;
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 8px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
 }
 
-.field-group input,
-.field-group select {
-    width: 100%;
-    padding: 13px 16px;
-    background: rgba(255,255,255,0.18);
-    border: 1px solid rgba(255,255,255,0.32);
-    border-radius: 10px;
-    color: #fff;
-    font-size: 14px;
-    outline: none;
-    transition: border 0.2s, background 0.2s;
-    box-sizing: border-box;
+.field-group input {
+  width: 100%;
+  padding: 13px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  color: var(--white);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
 }
 
-.field-group input::placeholder { color: rgba(255,255,255,0.55); }
-.field-group input:focus,
-.field-group select:focus {
-    border-color: rgba(255,255,255,0.7);
-    background: rgba(255,255,255,0.25);
-    box-shadow: 0 0 0 3px rgba(255,255,255,0.12);
+.field-group input::placeholder { color: rgba(255,255,255,0.25); }
+
+.field-group input:focus {
+  border-color: var(--gold);
+  background: rgba(240,165,0,0.05);
+  box-shadow: 0 0 0 3px rgba(240,165,0,0.10);
 }
 
-.field-group select option { color: #1a1a1a; background: #fff; }
+/* ── Password eye wrapper ── */
+.pwd-wrapper { position: relative; }
+.pwd-wrapper input { padding-right: 46px !important; }
 
-/* ── Button ── */
+.eye-btn {
+  position: absolute;
+  right: 12px; top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255,255,255,0.35);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.2s;
+  outline: none;
+}
+.eye-btn:hover { color: var(--gold); }
+.eye-btn svg { display: block; }
+
+/* ── Login Button ── */
 .btn-login {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(45deg, #005f8e, #0077b6);
-    border: none;
-    border-radius: 10px;
-    color: #fff;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    transition: all 0.3s;
-    margin-top: 8px;
-    box-shadow: 0 6px 20px rgba(0,100,160,0.4);
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--gold) 0%, #d48800 100%);
+  border: none;
+  border-radius: 12px;
+  color: var(--navy-900);
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  box-shadow: 0 6px 24px rgba(240,165,0,0.30);
+  position: relative;
+  overflow: hidden;
+}
+.btn-login::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 .btn-login:hover {
-    background: linear-gradient(45deg, #004b72, #005f8e);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 28px rgba(0,80,140,0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(240,165,0,0.40);
 }
+.btn-login:hover::after { opacity: 1; }
 .btn-login:active { transform: translateY(0); }
-
-/* ── Error ── */
-.error-msg {
-    background: rgba(220,50,50,0.2);
-    border: 1px solid rgba(255,120,120,0.5);
-    border-radius: 8px;
-    padding: 11px 14px;
-    color: #ffe0e0;
-    font-size: 13px;
-    margin-bottom: 16px;
-    text-align: center;
-}
 
 /* ── Footer ── */
 .login-footer {
-    margin-top: 28px;
-    font-size: 13px;
-    color: rgba(255,255,255,0.7);
+  font-size: 12px;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.3px;
+  animation: fadeUp 0.7s 0.3s both;
 }
 
-@keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-20px); }
-    to   { opacity: 1; transform: translateY(0); }
+/* ── Animations ── */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

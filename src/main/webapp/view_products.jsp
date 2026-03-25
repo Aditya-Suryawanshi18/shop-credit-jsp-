@@ -15,86 +15,81 @@
     <title>Products</title>
     <link rel="stylesheet" href="css/content.css">
     <style>
-        /* ── Quick-add inline panel ── */
+        /* Quick-add inline panel */
         .quick-add-panel {
-            background: #f5f3ff;
-            border: 2px solid #c8b7f6;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-top: 3px solid #0d1b2a;
             border-radius: 14px;
-            padding: 18px 22px;
-            margin-bottom: 20px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
             display: flex;
             align-items: flex-end;
             gap: 14px;
             flex-wrap: wrap;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
-        .quick-add-panel .qa-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            flex: 1;
-            min-width: 160px;
-        }
-        .quick-add-panel label {
-            font-size: 12px;
-            font-weight: 700;
-            color: #373279;
-            letter-spacing: 0.3px;
-        }
-        .quick-add-panel input {
-            padding: 9px 12px;
-            border: 2px solid #c8b7f6;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #1a1a2a;
-            background: #fff;
-            outline: none;
-            transition: border 0.2s;
-            -moz-appearance: textfield;
-        }
-        .quick-add-panel input::-webkit-inner-spin-button,
-        .quick-add-panel input::-webkit-outer-spin-button { -webkit-appearance: none; }
-        .quick-add-panel input:focus { border-color: #7c73b8; }
-        .qa-badge {
-            background: linear-gradient(135deg, #2b0d73, #4a2fa0);
-            color: #fff;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+        .qa-title {
+            font-size: 14px; font-weight: 700;
+            color: #0d1b2a; text-transform: uppercase;
+            letter-spacing: 0.8px; align-self: center;
             white-space: nowrap;
         }
-        /* ── Quantity badge in table ── */
-        .qty-badge {
-            display: inline-block;
-            padding: 3px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 700;
+        .qa-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }
+        .qa-group label { font-size: 11px; font-weight: 700; color: #4a5568; text-transform: uppercase; letter-spacing: 0.6px; }
+        .qa-group input {
+            padding: 9px 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 13.5px;
+            color: #0d1b2a;
+            background: #f8fafc;
+            outline: none;
+            transition: border 0.18s, box-shadow 0.18s;
+            -moz-appearance: textfield;
         }
-        .qty-ok   { background: #e8f5e9; color: #2e7d32; }
-        .qty-low  { background: #fff3e0; color: #e65100; }
-        .qty-zero { background: #ffebee; color: #c62828; }
-        /* ── Delete btn ── */
+        .qa-group input::-webkit-inner-spin-button,
+        .qa-group input::-webkit-outer-spin-button { -webkit-appearance: none; }
+        .qa-group input:focus {
+            border-color: #0d1b2a;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(13,27,42,0.07);
+        }
+
+        /* Stock badges */
+        .stock-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 12px; border-radius: 20px;
+            font-size: 12px; font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+        .stock-ok   { background: rgba(0,184,122,0.10); color: #00805a; border: 1px solid rgba(0,184,122,0.2); }
+        .stock-low  { background: rgba(240,165,0,0.10); color: #a16207; border: 1px solid rgba(240,165,0,0.2); }
+        .stock-zero { background: rgba(255,71,87,0.10); color: #be123c; border: 1px solid rgba(255,71,87,0.2); }
+
         .btn-delete {
-            padding: 5px 12px;
-            background: #ff5252;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
+            padding: 5px 14px;
+            background: rgba(255,71,87,0.08);
+            color: #dc2626;
+            border: 1px solid rgba(255,71,87,0.2);
+            border-radius: 7px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 12px; font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.18s;
         }
-        .btn-delete:hover { background: #b71c1c; }
+        .btn-delete:hover { background: #ff4757; color: #fff; border-color: #ff4757; }
+
+        .product-id {
+            font-size: 12px; font-weight: 700;
+            color: #94a3b8; letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
-
 <div class="content-wrapper">
 
-    <!-- Status messages -->
     <% if (request.getParameter("success") != null) { %>
     <div class="alert alert-success">✅ <%= request.getParameter("success") %></div>
     <% } %>
@@ -102,48 +97,44 @@
     <div class="alert alert-error">❌ <%= request.getParameter("error") %></div>
     <% } %>
 
-    <!-- Quick-Add Product Form -->
-    <form action="AddProductServlet" method="post"
-          onsubmit="return validateProduct()">
+    <!-- Quick Add -->
+    <form action="AddProductServlet" method="post" onsubmit="return validateProduct()">
         <div class="quick-add-panel">
-            <span class="qa-badge">➕ Add New Product</span>
-
+            <span class="qa-title">New Product</span>
             <div class="qa-group">
-                <label for="productName">Product Name *</label>
+                <label for="productName">Product Name</label>
                 <input type="text" id="productName" name="productName"
                        placeholder="Enter product name" maxlength="150" required>
             </div>
-
             <div class="qa-group" style="max-width:160px;">
-                <label for="quantity">Initial Quantity *</label>
+                <label for="quantity">Initial Stock</label>
                 <input type="number" id="quantity" name="quantity"
                        placeholder="0" min="0" required>
             </div>
-
-            <button type="submit" class="btn-save" style="padding:10px 26px; font-size:14px;">
-                💾 Save
+            <button type="submit" class="btn-save" style="padding:10px 24px; font-size:13.5px; white-space:nowrap;">
+                💾 Add Product
             </button>
         </div>
     </form>
 
-    <!-- Search Bar -->
+    <!-- Search -->
     <form class="search-bar" action="view_products.jsp" method="get">
-        <input type="text" name="keyword" placeholder="🔍 Search by Product Name or ID"
+        <input type="text" name="keyword" placeholder="Search by product name or ID…"
                value="<%= hasKeyword ? keyword : "" %>">
-        <button type="submit" class="btn-search">Search</button>
+        <button type="submit" class="btn-search">🔍 Search</button>
         <a href="view_products.jsp" class="btn-reset">Reset</a>
     </form>
 
-    <!-- Products Table -->
+    <!-- Table -->
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Product ID</th>
-                    <th>Product Name</th>
-                    <th>Quantity</th>
-                    <th>Delete</th>
+                    <th style="width:48px;">Sr.No</th>
+                    <th style="width:100px;">Product ID</th>
+                    <th style="text-align:center;">Product Name</th>
+                    <th>Stock Status</th>
+                    <th style="width:100px;">Remove</th>
                 </tr>
             </thead>
             <tbody>
@@ -162,29 +153,33 @@
                     }
 
                     ResultSet rs = ps.executeQuery();
-                    boolean hasData = false;
-                    int sNo = 1;
+                    boolean hasData = false; int sNo = 1;
 
                     while (rs.next()) {
                         hasData = true;
-                        int    id       = rs.getInt("id");
-                        String pname    = rs.getString("product_name");
-                        int    qty      = rs.getInt("quantity");
-                        String qtyClass = qty == 0 ? "qty-zero" : (qty <= 10 ? "qty-low" : "qty-ok");
-                        String qtyLabel = qty == 0 ? "Out of Stock" : (qty <= 10 ? "Low Stock" : "In Stock");
+                        int    id    = rs.getInt("id");
+                        String pname = rs.getString("product_name");
+                        int    qty   = rs.getInt("quantity");
+                        String cls   = qty == 0 ? "stock-zero" : (qty <= 10 ? "stock-low" : "stock-ok");
+                        String icon  = qty == 0 ? "🔴" : (qty <= 10 ? "🟡" : "🟢");
+                        String lbl   = qty == 0 ? "Out of Stock" : (qty <= 10 ? "Low: " + qty : "" + qty + " units");
             %>
                 <tr>
-                    <td><%= sNo++ %></td>
-                    <td><strong style="color:#2b0d73;">P-<%= String.format("%04d", id) %></strong></td>
-                    <td style="text-align:left; font-weight:600;">
-                        <span style="font-size:15px;">📦</span> <%= pname %>
+                    <td style="color:#cbd5e1; font-size:12px;"><%= sNo++ %></td>
+                    <td><span class="product-id">P-<%= String.format("%04d",id) %></span></td>
+                    <td style="text-align:left;">
+                        <div style="text-align: center; align-items:center; gap:8px;">
+                            <span style="font-size:16px;">📦</span>
+                            <strong style="color:#0d1b2a;"><%= pname %></strong>
+                        </div>
                     </td>
                     <td>
-                        <span class="qty-badge <%= qtyClass %>"><%= qty %></span>
-                        <span style="font-size:11px; color:#999; margin-left:4px;">(<%= qtyLabel %>)</span>
+                        <span class="stock-badge <%= cls %>">
+                            <%= icon %> <%= lbl %>
+                        </span>
                     </td>
                     <td>
-                        <form action="DeleteProductServlet" method="post"
+                        <form action="DeleteProductServlet" method="post" style="display:inline;"
                               onsubmit="return confirm('Delete product: <%= pname %>?')">
                             <input type="hidden" name="id" value="<%= id %>">
                             <button type="submit" class="btn-delete">🗑 Delete</button>
@@ -195,17 +190,12 @@
                     }
                     if (!hasData) {
             %>
-                <tr><td colspan="5" class="no-data">⚠ No products found. Add your first product above.</td></tr>
+                <tr><td colspan="5" class="no-data">No products found. Add your first product above.</td></tr>
             <%
                     }
                 } catch (Exception e) {
             %>
-                <tr>
-                    <td colspan="5" class="no-data">
-                        ❌ Error: <%= e.getMessage() %><br>
-                        <small style="color:#888;">Make sure the <code>products</code> table exists.</small>
-                    </td>
-                </tr>
+                <tr><td colspan="5" class="no-data">❌ Error: <%= e.getMessage() %></td></tr>
             <%
                 }
             %>
@@ -213,7 +203,7 @@
         </table>
     </div>
 
-    <!-- Stock summary chips -->
+    <!-- Summary Stats -->
     <%
         int totalProducts = 0, inStock = 0, lowStock = 0, outStock = 0;
         try (Connection conn = DBConnection.getConnection()) {
@@ -237,8 +227,8 @@
             <div class="s-value"><%= inStock %></div>
         </div>
         <div class="stat-chip">
-            <div class="s-label">Low Stock (≤10)</div>
-            <div class="s-value" style="color:#e65100;"><%= lowStock %></div>
+            <div class="s-label">Low Stock</div>
+            <div class="s-value" style="color:#d97706;"><%= lowStock %></div>
         </div>
         <div class="stat-chip red">
             <div class="s-label">Out of Stock</div>
@@ -252,8 +242,8 @@
 function validateProduct() {
     var name = document.getElementById('productName').value.trim();
     var qty  = document.getElementById('quantity').value;
-    if (!name) { alert('⚠️ Please enter product name.'); return false; }
-    if (qty === '' || parseInt(qty) < 0) { alert('⚠️ Please enter a valid quantity.'); return false; }
+    if (!name) { alert('Please enter a product name.'); return false; }
+    if (qty === '' || parseInt(qty) < 0) { alert('Please enter a valid quantity.'); return false; }
     return true;
 }
 </script>

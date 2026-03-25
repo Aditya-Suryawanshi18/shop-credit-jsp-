@@ -5,6 +5,8 @@
         return;
     }
     String adminUser = (String) session.getAttribute("admin");
+    String fullName  = (String) session.getAttribute("fullName");
+    if (fullName == null) fullName = adminUser;
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,8 +22,9 @@
 <div class="sidebar" id="sidebar">
 
     <div class="profile-section">
-        <div class="profile-avatar" id="avatarEl">👤</div>
-        <div class="user-name"><%= adminUser.toUpperCase() %></div>
+        <div class="profile-avatar">👤</div>
+        <div class="user-name"><%= fullName.toUpperCase() %></div>
+        <div class="user-role">Administrator</div>
     </div>
 
     <ul class="menu" id="mainMenu">
@@ -43,11 +46,11 @@
         </li>
 
         <li data-page="view_customers.jsp">
-            <a href="#" onclick="loadPage('view_customers.jsp','View Customers',this);return false;">
+            <a href="#" onclick="loadPage('view_customers.jsp','Customers',this);return false;">
                 <span class="menu-icon">👥</span>
-                <span class="menu-label">View Customers</span>
+                <span class="menu-label">Customers</span>
             </a>
-            <span class="tooltip-label">View Customers</span>
+            <span class="tooltip-label">Customers</span>
         </li>
 
         <li data-page="add_dealer.jsp">
@@ -59,14 +62,13 @@
         </li>
 
         <li data-page="view_dealers.jsp">
-            <a href="#" onclick="loadPage('view_dealers.jsp','View Dealers',this);return false;">
+            <a href="#" onclick="loadPage('view_dealers.jsp','Dealers',this);return false;">
                 <span class="menu-icon">📋</span>
-                <span class="menu-label">View Dealers</span>
+                <span class="menu-label">Dealers</span>
             </a>
-            <span class="tooltip-label">View Dealers</span>
+            <span class="tooltip-label">Dealers</span>
         </li>
 
-        <!-- ── Products (new) ── -->
         <li data-page="view_products.jsp">
             <a href="#" onclick="loadPage('view_products.jsp','Products',this);return false;">
                 <span class="menu-icon">📦</span>
@@ -79,10 +81,10 @@
 
     <div class="logout">
         <a href="#" onclick="showLogoutModal(event)">
-            <span class="menu-icon" style="font-size:16px;">🚪</span>
-            <span class="logout-text">Logout</span>
+            <span class="menu-icon" style="font-size:15px;">🚪</span>
+            <span class="logout-text">Sign Out</span>
         </a>
-        <span class="tooltip-label">Logout</span>
+        <span class="tooltip-label">Sign Out</span>
     </div>
 </div>
 
@@ -90,59 +92,49 @@
 <div class="main-content" id="mainContent">
     <header>
         <div class="title-row">
+            <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
             <div class="bank-section">
-                <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle menu">
-                    <span></span><span></span><span></span>
-                </button>
                 <span class="bank-icon">🏪</span>
                 <h1 class="bank-title">Mauali Tredars</h1>
             </div>
-            <div class="shop-badge" id="pageTitle">Dashboard</div>
         </div>
         <div class="nav-row">
-            <div class="current-date" id="currentDate">Loading...</div>
+            <div class="current-date" id="currentDate"></div>
+            <div class="shop-badge" id="pageTitle">Dashboard</div>
         </div>
     </header>
 
     <iframe id="contentFrame" frameborder="0" src="index.jsp"></iframe>
 </div>
 
-<!-- Logout Confirm Modal -->
+<!-- Logout Modal -->
 <div id="logoutModal" class="logout-modal">
     <div class="logout-modal-content">
-        <h2>⚠️ Confirm Logout</h2>
-        <p>Are you sure you want to log out?</p>
+        <h2>Sign Out?</h2>
+        <p>You'll need to sign in again to access the system.</p>
         <div class="modal-btns">
             <button class="btn-cancel" onclick="closeLogoutModal()">Cancel</button>
-            <button class="btn-confirm" onclick="confirmLogout()">Yes, Logout</button>
+            <button class="btn-confirm" onclick="confirmLogout()">Yes, Sign Out</button>
         </div>
     </div>
 </div>
 
 <script>
-// ── Sidebar collapse ──────────────────────────────────────────────────────
+// ── Sidebar collapse ──
 var isCollapsed = sessionStorage.getItem('sidebarCollapsed') === 'true';
 
 function applyState() {
     var sidebar = document.getElementById('sidebar');
-    if (isCollapsed) {
-        sidebar.classList.add('collapsed');
-        document.body.classList.add('sidebar-collapsed');
-    } else {
-        sidebar.classList.remove('collapsed');
-        document.body.classList.remove('sidebar-collapsed');
-    }
+    sidebar.classList.toggle('collapsed', isCollapsed);
+    document.body.classList.toggle('sidebar-collapsed', isCollapsed);
     sessionStorage.setItem('sidebarCollapsed', isCollapsed);
 }
-
-function toggleSidebar() {
-    isCollapsed = !isCollapsed;
-    applyState();
-}
-
+function toggleSidebar() { isCollapsed = !isCollapsed; applyState(); }
 applyState();
 
-// ── Tooltip vertical positioning ──────────────────────────────────────────
+// ── Tooltip positioning ──
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.menu li, .logout').forEach(function (item) {
         var tip = item.querySelector('.tooltip-label');
@@ -156,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// ── Page loading ──────────────────────────────────────────────────────────
+// ── Page loading ──
 function loadPage(page, title, el) {
     document.getElementById('contentFrame').src = page;
     document.getElementById('pageTitle').textContent = title;
@@ -165,8 +157,6 @@ function loadPage(page, title, el) {
     document.querySelectorAll('.menu li').forEach(function(li){ li.classList.remove('active'); });
     if (el && el.closest) el.closest('li').classList.add('active');
 }
-
-// Allow iframed pages to load detail pages
 function loadDetailPage(page, title) {
     document.getElementById('contentFrame').src = page;
     document.getElementById('pageTitle').textContent = title;
@@ -177,7 +167,7 @@ window.updateParentBreadcrumb = function(path, page) {
     sessionStorage.setItem('currentTitle', path);
 };
 
-// Restore last page
+// ── Restore last page ──
 window.onload = function() {
     var savedPage  = sessionStorage.getItem('currentPage');
     var savedTitle = sessionStorage.getItem('currentTitle');
@@ -185,24 +175,21 @@ window.onload = function() {
         document.getElementById('contentFrame').src = savedPage;
         document.getElementById('pageTitle').textContent = savedTitle || '';
         document.querySelectorAll('.menu li').forEach(function(li){
-            if (li.dataset.page === savedPage) li.classList.add('active');
-            else li.classList.remove('active');
+            li.classList.toggle('active', li.dataset.page === savedPage);
         });
     }
     // Date
     var d = new Date();
-    var opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
-    document.getElementById('currentDate').textContent = 'Today: ' + d.toLocaleDateString('en-IN', opts);
+    var opts = { weekday:'short', year:'numeric', month:'short', day:'numeric' };
+    document.getElementById('currentDate').textContent = d.toLocaleDateString('en-IN', opts);
 };
 
-// ── Logout ────────────────────────────────────────────────────────────────
+// ── Logout ──
 function showLogoutModal(e) { e.preventDefault(); document.getElementById('logoutModal').classList.add('show'); }
 function closeLogoutModal() { document.getElementById('logoutModal').classList.remove('show'); }
 function confirmLogout()    { sessionStorage.clear(); window.location.href = 'LogoutServlet'; }
-
 window.onclick = function(e) { if (e.target === document.getElementById('logoutModal')) closeLogoutModal(); };
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLogoutModal(); });
 </script>
-
 </body>
 </html>
