@@ -12,17 +12,23 @@ public class AddCustomerServlet extends HttpServlet {
             throws ServletException, IOException {
 
         response.setContentType("text/html");
+        request.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
 
-        String name    = request.getParameter("name");
-        String phone   = request.getParameter("phone");
-        String credit  = request.getParameter("credit");
-        String address = request.getParameter("address");
+        String name        = request.getParameter("name");
+        String marathiName = request.getParameter("marathiName"); // may be null / blank
+        String phone       = request.getParameter("phone");
+        String credit      = request.getParameter("credit");
+        String address     = request.getParameter("address");
+
+        // Sanitise optional Marathi name
+        if (marathiName != null && marathiName.trim().isEmpty()) marathiName = null;
+        if (marathiName != null) marathiName = marathiName.trim();
 
         if (name == null || phone == null || credit == null || address == null ||
                 name.isEmpty() || phone.isEmpty() || credit.isEmpty() || address.isEmpty()) {
             out.println("<script>");
-            out.println("alert('⚠️ Please fill all fields!');");
+            out.println("alert('⚠️ Please fill all required fields!');");
             out.println("window.location.href='add_customer.jsp';");
             out.println("</script>");
             return;
@@ -30,13 +36,14 @@ public class AddCustomerServlet extends HttpServlet {
 
         try (Connection conn = DBConnection.getConnection()) {
 
-            String sql = "INSERT INTO customers (id, name, phone, credit, address) "
-                       + "VALUES (customer_seq.NEXTVAL, ?, ?, ?, ?)";
+            String sql = "INSERT INTO customers (id, name, marathi_name, phone, credit, address) "
+                       + "VALUES (customer_seq.NEXTVAL, ?, ?, ?, ?, ?)";
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, name);
-                ps.setString(2, phone);
-                ps.setDouble(3, Double.parseDouble(credit));
-                ps.setString(4, address);
+                ps.setString(1, name.trim());
+                ps.setString(2, marathiName);           // NULL if not provided
+                ps.setString(3, phone.trim());
+                ps.setDouble(4, Double.parseDouble(credit));
+                ps.setString(5, address.trim());
 
                 int rows = ps.executeUpdate();
 

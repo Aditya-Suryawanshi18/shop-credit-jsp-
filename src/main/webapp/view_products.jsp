@@ -15,7 +15,6 @@
     <title>Products</title>
     <link rel="stylesheet" href="css/content.css">
     <style>
-        /* Quick-add inline panel */
         .quick-add-panel {
             background: #fff;
             border: 1px solid #e2e8f0;
@@ -29,62 +28,40 @@
             flex-wrap: wrap;
             box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
-        .qa-title {
-            font-size: 14px; font-weight: 700;
-            color: #0d1b2a; text-transform: uppercase;
-            letter-spacing: 0.8px; align-self: center;
-            white-space: nowrap;
-        }
-        .qa-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }
+        .qa-title { font-size: 14px; font-weight: 700; color: #0d1b2a; text-transform: uppercase;
+                    letter-spacing: 0.8px; align-self: center; white-space: nowrap; }
+        .qa-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 140px; }
         .qa-group label { font-size: 11px; font-weight: 700; color: #4a5568; text-transform: uppercase; letter-spacing: 0.6px; }
         .qa-group input {
-            padding: 9px 12px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 8px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 13.5px;
-            color: #0d1b2a;
-            background: #f8fafc;
-            outline: none;
-            transition: border 0.18s, box-shadow 0.18s;
+            padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px;
+            font-family: 'Outfit', sans-serif; font-size: 13.5px; color: #0d1b2a;
+            background: #f8fafc; outline: none; transition: border 0.18s;
             -moz-appearance: textfield;
         }
         .qa-group input::-webkit-inner-spin-button,
         .qa-group input::-webkit-outer-spin-button { -webkit-appearance: none; }
-        .qa-group input:focus {
-            border-color: #0d1b2a;
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(13,27,42,0.07);
-        }
+        .qa-group input:focus { border-color: #0d1b2a; background: #fff; box-shadow: 0 0 0 3px rgba(13,27,42,0.07); }
 
-        /* Stock badges */
         .stock-badge {
             display: inline-flex; align-items: center; gap: 5px;
             padding: 4px 12px; border-radius: 20px;
             font-size: 12px; font-weight: 700;
-            font-variant-numeric: tabular-nums;
         }
         .stock-ok   { background: rgba(0,184,122,0.10); color: #00805a; border: 1px solid rgba(0,184,122,0.2); }
         .stock-low  { background: rgba(240,165,0,0.10); color: #a16207; border: 1px solid rgba(240,165,0,0.2); }
         .stock-zero { background: rgba(255,71,87,0.10); color: #be123c; border: 1px solid rgba(255,71,87,0.2); }
 
         .btn-delete {
-            padding: 5px 14px;
-            background: rgba(255,71,87,0.08);
-            color: #dc2626;
-            border: 1px solid rgba(255,71,87,0.2);
-            border-radius: 7px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 12px; font-weight: 600;
-            cursor: pointer;
+            padding: 5px 14px; background: rgba(255,71,87,0.08); color: #dc2626;
+            border: 1px solid rgba(255,71,87,0.2); border-radius: 7px;
+            font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer;
             transition: all 0.18s;
         }
         .btn-delete:hover { background: #ff4757; color: #fff; border-color: #ff4757; }
+        .product-id { font-size: 12px; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; }
 
-        .product-id {
-            font-size: 12px; font-weight: 700;
-            color: #94a3b8; letter-spacing: 0.5px;
-        }
+        /* Marathi name sub-label */
+        .prod-mr-name { font-size: 11px; color: #888; font-weight: 500; display: block; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -97,21 +74,36 @@
     <div class="alert alert-error">❌ <%= request.getParameter("error") %></div>
     <% } %>
 
-    <!-- Quick Add -->
+    <!-- Quick Add with Marathi name -->
     <form action="AddProductServlet" method="post" onsubmit="return validateProduct()">
         <div class="quick-add-panel">
-            <span class="qa-title">New Product</span>
-            <div class="qa-group">
-                <label for="productName">Product Name</label>
+            <span class="qa-title" data-i18n="prod.new_label">New Product</span>
+
+            <div class="qa-group" style="min-width:200px;">
+                <label data-i18n="prod.name_label">Product Name</label>
                 <input type="text" id="productName" name="productName"
-                       placeholder="Enter product name" maxlength="150" required>
+                       data-i18n-ph="prod.name_ph"
+                       placeholder="Enter product name"
+                       maxlength="150" required>
             </div>
-            <div class="qa-group" style="max-width:160px;">
-                <label for="quantity">Initial Stock</label>
+
+            <div class="qa-group" style="min-width:180px;">
+                <label data-i18n="prod.mr_name_label">Marathi Name (Optional)</label>
+                <input type="text" id="marathiName" name="marathiName"
+                       data-i18n-ph="prod.mr_name_ph"
+                       placeholder="मराठीत उत्पाद नाव"
+                       maxlength="200">
+            </div>
+
+            <div class="qa-group" style="max-width:130px;">
+                <label data-i18n="prod.stock_label">Initial Stock</label>
                 <input type="number" id="quantity" name="quantity"
                        placeholder="0" min="0" required>
             </div>
-            <button type="submit" class="btn-save" style="padding:10px 24px; font-size:13.5px; white-space:nowrap;">
+
+            <button type="submit" class="btn-save"
+                    style="padding:10px 24px; font-size:13.5px; white-space:nowrap;"
+                    data-i18n="prod.add_btn">
                 💾 Add Product
             </button>
         </div>
@@ -119,10 +111,12 @@
 
     <!-- Search -->
     <form class="search-bar" action="view_products.jsp" method="get">
-        <input type="text" name="keyword" placeholder="Search by product name or ID…"
+        <input type="text" name="keyword"
+               data-i18n-ph="prod.search_ph"
+               placeholder="Search by product name or ID…"
                value="<%= hasKeyword ? keyword : "" %>">
-        <button type="submit" class="btn-search">🔍 Search</button>
-        <a href="view_products.jsp" class="btn-reset">Reset</a>
+        <button type="submit" class="btn-search" data-i18n="btn.search">🔍 Search</button>
+        <a href="view_products.jsp" class="btn-reset" data-i18n="btn.reset">Reset</a>
     </form>
 
     <!-- Table -->
@@ -130,11 +124,11 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width:48px;">Sr.No</th>
-                    <th style="width:100px;">Product ID</th>
-                    <th style="text-align:center;">Product Name</th>
-                    <th>Stock Status</th>
-                    <th style="width:100px;">Remove</th>
+                    <th style="width:48px;" data-i18n="prod.th_sr">Sr.No</th>
+                    <th style="width:110px;" data-i18n="prod.th_id">Product ID</th>
+                    <th data-i18n="prod.th_name">Product Name</th>
+                    <th data-i18n="prod.th_stock">Stock Status</th>
+                    <th style="width:100px;" data-i18n="prod.th_remove">Remove</th>
                 </tr>
             </thead>
             <tbody>
@@ -157,32 +151,44 @@
 
                     while (rs.next()) {
                         hasData = true;
-                        int    id    = rs.getInt("id");
-                        String pname = rs.getString("product_name");
-                        int    qty   = rs.getInt("quantity");
-                        String cls   = qty == 0 ? "stock-zero" : (qty <= 10 ? "stock-low" : "stock-ok");
-                        String icon  = qty == 0 ? "🔴" : (qty <= 10 ? "🟡" : "🟢");
-                        String lbl   = qty == 0 ? "Out of Stock" : (qty <= 10 ? "Low: " + qty : "" + qty + " units");
+                        int    id         = rs.getInt("id");
+                        String pname      = rs.getString("product_name");
+                        String mrName     = rs.getString("marathi_name");
+                        if (mrName == null) mrName = "";
+                        int    qty  = rs.getInt("quantity");
+                        String cls  = qty == 0 ? "stock-zero" : (qty <= 10 ? "stock-low" : "stock-ok");
+                        String icon = qty == 0 ? "🔴" : (qty <= 10 ? "🟡" : "🟢");
+                        String lbl  = qty == 0 ? "Out of Stock" : (qty <= 10 ? "Low: " + qty : "" + qty + " units");
+                        String lblMr = qty == 0 ? "स्टॉक संपला" : (qty <= 10 ? "कमी: " + qty : "" + qty + " नग");
             %>
                 <tr>
                     <td style="color:#cbd5e1; font-size:12px;"><%= sNo++ %></td>
                     <td><span class="product-id">P-<%= String.format("%04d",id) %></span></td>
                     <td style="text-align:left;">
-                        <div style="text-align: center; align-items:center; gap:8px;">
-                            <span style="font-size:16px;">📦</span>
-                            <strong style="color:#0d1b2a;"><%= pname %></strong>
+                        <div style="display:flex; align-items:flex-start; gap:8px;">
+                            <span style="font-size:16px; flex-shrink:0;">📦</span>
+                            <div>
+                                <!-- English name -->
+                                <strong class="lang-name-en" style="color:#0d1b2a;"><%= pname %></strong>
+                                <!-- Marathi name (primary in MR mode) -->
+                                <strong class="lang-name-mr" style="display:none; color:#0d1b2a;">
+                                    <%= mrName.isEmpty() ? pname : mrName %>
+                                </strong>
+                                <% if (!mrName.isEmpty()) { %>
+                                <span class="prod-mr-name lang-name-en">(<%= mrName %>)</span>
+                                <% } %>
+                            </div>
                         </div>
                     </td>
                     <td>
-                        <span class="stock-badge <%= cls %>">
-                            <%= icon %> <%= lbl %>
-                        </span>
+                        <span class="stock-badge <%= cls %> lang-name-en"><%= icon %> <%= lbl %></span>
+                        <span class="stock-badge <%= cls %> lang-name-mr" style="display:none;"><%= icon %> <%= lblMr %></span>
                     </td>
                     <td>
                         <form action="DeleteProductServlet" method="post" style="display:inline;"
                               onsubmit="return confirm('Delete product: <%= pname %>?')">
                             <input type="hidden" name="id" value="<%= id %>">
-                            <button type="submit" class="btn-delete">🗑 Delete</button>
+                            <button type="submit" class="btn-delete" data-i18n="btn.delete">🗑 Delete</button>
                         </form>
                     </td>
                 </tr>
@@ -203,47 +209,55 @@
         </table>
     </div>
 
-    <!-- Summary Stats -->
+    <!-- Stats -->
     <%
-        int totalProducts = 0, inStock = 0, lowStock = 0, outStock = 0;
+        int totalP = 0, inStock = 0, lowStock = 0, outStock = 0;
         try (Connection conn = DBConnection.getConnection()) {
             ResultSet r1 = conn.createStatement().executeQuery("SELECT COUNT(*) FROM products");
-            if (r1.next()) totalProducts = r1.getInt(1);
+            if (r1.next()) totalP = r1.getInt(1);
             ResultSet r2 = conn.createStatement().executeQuery("SELECT COUNT(*) FROM products WHERE quantity > 10");
             if (r2.next()) inStock = r2.getInt(1);
             ResultSet r3 = conn.createStatement().executeQuery("SELECT COUNT(*) FROM products WHERE quantity > 0 AND quantity <= 10");
             if (r3.next()) lowStock = r3.getInt(1);
             ResultSet r4 = conn.createStatement().executeQuery("SELECT COUNT(*) FROM products WHERE quantity = 0");
             if (r4.next()) outStock = r4.getInt(1);
-        } catch (Exception e) { /* ignore */ }
+        } catch (Exception e) {}
     %>
     <div class="stats-row" style="margin-top:18px;">
         <div class="stat-chip">
-            <div class="s-label">Total Products</div>
-            <div class="s-value"><%= totalProducts %></div>
+            <div class="s-label" data-i18n="prod.stat_total">Total Products</div>
+            <div class="s-value"><%= totalP %></div>
         </div>
         <div class="stat-chip green">
-            <div class="s-label">In Stock</div>
+            <div class="s-label" data-i18n="prod.stat_in">In Stock</div>
             <div class="s-value"><%= inStock %></div>
         </div>
         <div class="stat-chip">
-            <div class="s-label">Low Stock</div>
+            <div class="s-label" data-i18n="prod.stat_low">Low Stock</div>
             <div class="s-value" style="color:#d97706;"><%= lowStock %></div>
         </div>
         <div class="stat-chip red">
-            <div class="s-label">Out of Stock</div>
+            <div class="s-label" data-i18n="prod.stat_out">Out of Stock</div>
             <div class="s-value"><%= outStock %></div>
         </div>
     </div>
 
 </div>
 
+<script src="js/i18n.js"></script>
 <script>
 function validateProduct() {
     var name = document.getElementById('productName').value.trim();
     var qty  = document.getElementById('quantity').value;
-    if (!name) { alert('Please enter a product name.'); return false; }
-    if (qty === '' || parseInt(qty) < 0) { alert('Please enter a valid quantity.'); return false; }
+    var lang = i18n.getLang();
+    if (!name) {
+        alert(lang === 'mr' ? 'कृपया उत्पादाचे नाव टाका.' : 'Please enter a product name.');
+        return false;
+    }
+    if (qty === '' || parseInt(qty) < 0) {
+        alert(lang === 'mr' ? 'कृपया योग्य प्रमाण टाका.' : 'Please enter a valid quantity.');
+        return false;
+    }
     return true;
 }
 </script>

@@ -19,6 +19,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= shopEnName %> — Credit Manager</title>
     <link rel="stylesheet" href="css/main.css">
+    <style>
+        /* ── Language toggle button ── */
+        .lang-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 20px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .lang-btn {
+            padding: 6px 14px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.5);
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+        .lang-btn.active {
+            background: var(--gold);
+            color: #0d1b2a;
+            border-radius: 20px;
+        }
+        .lang-btn:hover:not(.active) {
+            color: rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.06);
+        }
+    </style>
 </head>
 <body>
 
@@ -36,57 +71,57 @@
         <li class="active" data-page="index.jsp">
             <a href="#" onclick="loadPage('index.jsp','Dashboard',this);return false;">
                 <span class="menu-icon">🏠</span>
-                <span class="menu-label">Dashboard</span>
+                <span class="menu-label" data-i18n="nav.dashboard">Dashboard</span>
             </a>
-            <span class="tooltip-label">Dashboard</span>
+            <span class="tooltip-label" data-i18n="nav.dashboard">Dashboard</span>
         </li>
 
         <li data-page="add_customer.jsp">
             <a href="#" onclick="loadPage('add_customer.jsp','Add Customer',this);return false;">
                 <span class="menu-icon">➕</span>
-                <span class="menu-label">Add Customer</span>
+                <span class="menu-label" data-i18n="nav.add_customer">Add Customer</span>
             </a>
-            <span class="tooltip-label">Add Customer</span>
+            <span class="tooltip-label" data-i18n="nav.add_customer">Add Customer</span>
         </li>
 
         <li data-page="view_customers.jsp">
             <a href="#" onclick="loadPage('view_customers.jsp','Customers',this);return false;">
                 <span class="menu-icon">👥</span>
-                <span class="menu-label">Customers</span>
+                <span class="menu-label" data-i18n="nav.customers">Customers</span>
             </a>
-            <span class="tooltip-label">Customers</span>
+            <span class="tooltip-label" data-i18n="nav.customers">Customers</span>
         </li>
 
         <li data-page="add_dealer.jsp">
             <a href="#" onclick="loadPage('add_dealer.jsp','Add Dealer',this);return false;">
                 <span class="menu-icon">🏬</span>
-                <span class="menu-label">Add Dealer</span>
+                <span class="menu-label" data-i18n="nav.add_dealer">Add Dealer</span>
             </a>
-            <span class="tooltip-label">Add Dealer</span>
+            <span class="tooltip-label" data-i18n="nav.add_dealer">Add Dealer</span>
         </li>
 
         <li data-page="view_dealers.jsp">
             <a href="#" onclick="loadPage('view_dealers.jsp','Dealers',this);return false;">
                 <span class="menu-icon">📋</span>
-                <span class="menu-label">Dealers</span>
+                <span class="menu-label" data-i18n="nav.dealers">Dealers</span>
             </a>
-            <span class="tooltip-label">Dealers</span>
+            <span class="tooltip-label" data-i18n="nav.dealers">Dealers</span>
         </li>
 
         <li data-page="view_products.jsp">
             <a href="#" onclick="loadPage('view_products.jsp','Products',this);return false;">
                 <span class="menu-icon">📦</span>
-                <span class="menu-label">Products</span>
+                <span class="menu-label" data-i18n="nav.products">Products</span>
             </a>
-            <span class="tooltip-label">Products</span>
+            <span class="tooltip-label" data-i18n="nav.products">Products</span>
         </li>
 
         <li data-page="request.jsp">
             <a href="#" onclick="loadPage('request.jsp','Requests',this);return false;">
                 <span class="menu-icon">📋</span>
-                <span class="menu-label">Requests</span>
+                <span class="menu-label" data-i18n="nav.requests">Requests</span>
             </a>
-            <span class="tooltip-label">Requests</span>
+            <span class="tooltip-label" data-i18n="nav.requests">Requests</span>
         </li>
 
     </ul>
@@ -94,9 +129,9 @@
     <div class="logout">
         <a href="#" onclick="showLogoutModal(event)">
             <span class="menu-icon" style="font-size:15px;">🚪</span>
-            <span class="logout-text">Sign Out</span>
+            <span class="logout-text" data-i18n="nav.sign_out">Sign Out</span>
         </a>
-        <span class="tooltip-label">Sign Out</span>
+        <span class="tooltip-label" data-i18n="nav.sign_out">Sign Out</span>
     </div>
 </div>
 
@@ -113,6 +148,11 @@
             </div>
         </div>
         <div class="nav-row">
+            <!-- Language Toggle -->
+            <div class="lang-toggle">
+                <button class="lang-btn" id="btnEN" onclick="switchLang('en')">EN</button>
+                <button class="lang-btn" id="btnMR" onclick="switchLang('mr')">मर</button>
+            </div>
             <div class="current-date" id="currentDate"></div>
             <div class="shop-badge" id="pageTitle">Dashboard</div>
         </div>
@@ -124,17 +164,20 @@
 <!-- Logout Modal -->
 <div id="logoutModal" class="logout-modal">
     <div class="logout-modal-content">
-        <h2>Sign Out?</h2>
-        <p>You'll need to sign in again to access the system.</p>
+        <h2 data-i18n="logout.title">Sign Out?</h2>
+        <p data-i18n="logout.msg">You'll need to sign in again to access the system.</p>
         <div class="modal-btns">
-            <button class="btn-cancel" onclick="closeLogoutModal()">Cancel</button>
-            <button class="btn-confirm" onclick="confirmLogout()">Yes, Sign Out</button>
+            <button class="btn-cancel" onclick="closeLogoutModal()" data-i18n="logout.cancel">Cancel</button>
+            <button class="btn-confirm" onclick="confirmLogout()" data-i18n="logout.confirm">Yes, Sign Out</button>
         </div>
     </div>
 </div>
 
+<!-- i18n for main frame -->
+<script src="js/i18n.js"></script>
+
 <script>
-// ── Sidebar collapse ──
+// ── Sidebar collapse ──────────────────────────────────────────────────────
 var isCollapsed = sessionStorage.getItem('sidebarCollapsed') === 'true';
 
 function applyState() {
@@ -146,7 +189,7 @@ function applyState() {
 function toggleSidebar() { isCollapsed = !isCollapsed; applyState(); }
 applyState();
 
-// ── Tooltip positioning ──
+// ── Tooltip positioning ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.menu li, .logout').forEach(function (item) {
         var tip = item.querySelector('.tooltip-label');
@@ -160,7 +203,28 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// ── Page loading ──
+// ── Language toggle ───────────────────────────────────────────────────────
+function switchLang(lang) {
+    i18n.setLang(lang);
+    i18n.apply();            // apply to sidebar / modal
+    updateLangButtons();
+    // Reload iframe so content page re-applies translations
+    var frame = document.getElementById('contentFrame');
+    var src = frame.src;
+    frame.src = '';
+    frame.src = src;
+}
+
+function updateLangButtons() {
+    var lang = i18n.getLang();
+    document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+    document.getElementById('btnMR').classList.toggle('active', lang === 'mr');
+}
+
+// Initialise button state on load
+updateLangButtons();
+
+// ── Page loading ──────────────────────────────────────────────────────────
 function loadPage(page, title, el) {
     document.getElementById('contentFrame').src = page;
     document.getElementById('pageTitle').textContent = title;
@@ -179,7 +243,7 @@ window.updateParentBreadcrumb = function(path, page) {
     sessionStorage.setItem('currentTitle', path);
 };
 
-// ── Restore last page ──
+// ── Restore last page ─────────────────────────────────────────────────────
 window.onload = function() {
     var savedPage  = sessionStorage.getItem('currentPage');
     var savedTitle = sessionStorage.getItem('currentTitle');
@@ -190,13 +254,12 @@ window.onload = function() {
             li.classList.toggle('active', li.dataset.page === savedPage);
         });
     }
-    // Date
     var d = new Date();
     var opts = { weekday:'short', year:'numeric', month:'short', day:'numeric' };
     document.getElementById('currentDate').textContent = d.toLocaleDateString('en-IN', opts);
 };
 
-// ── Logout ──
+// ── Logout ────────────────────────────────────────────────────────────────
 function showLogoutModal(e) { e.preventDefault(); document.getElementById('logoutModal').classList.add('show'); }
 function closeLogoutModal() { document.getElementById('logoutModal').classList.remove('show'); }
 function confirmLogout()    { sessionStorage.clear(); window.location.href = 'LogoutServlet'; }

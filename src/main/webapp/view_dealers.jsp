@@ -27,7 +27,6 @@
         }
         .btn-eye:hover { color: #2b0d73; background: #ede9ff; }
         .btn-eye svg   { display: block; pointer-events: none; }
-
         .btn-action-add {
             padding: 6px 16px;
             background: linear-gradient(135deg, #4caf50, #2e7d32);
@@ -37,7 +36,6 @@
             transition: opacity 0.2s, transform 0.15s; white-space: nowrap;
         }
         .btn-action-add:hover { opacity: 0.88; transform: scale(1.04); }
-
         .btn-action-settle {
             padding: 6px 16px;
             background: linear-gradient(135deg, #e53935, #b71c1c);
@@ -47,9 +45,7 @@
             transition: opacity 0.2s, transform 0.15s; white-space: nowrap;
         }
         .btn-action-settle:hover { opacity: 0.88; transform: scale(1.04); }
-
         .action-btns { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
-
         .btn-print {
             padding: 9px 20px;
             background: linear-gradient(135deg, #7a3800, #d4681a);
@@ -76,24 +72,26 @@
 
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;" class="no-print">
         <form class="search-bar" action="view_dealers.jsp" method="get" style="margin-bottom:0; flex:1;">
-            <input type="text" name="keyword" placeholder="🔍 Search by Name, Phone or ID"
+            <input type="text" name="keyword"
+                   data-i18n-ph="vd.search_ph"
+                   placeholder="🔍 Search by Name, Phone or ID"
                    value="<%= hasKeyword ? keyword : "" %>">
-            <button type="submit" class="btn-search">Search</button>
-            <a href="view_dealers.jsp" class="btn-reset">Reset</a>
+            <button type="submit" class="btn-search" data-i18n="btn.search">Search</button>
+            <a href="view_dealers.jsp" class="btn-reset" data-i18n="btn.reset">Reset</a>
         </form>
-        <button class="btn-print" onclick="printStatement()">🖨️ Print Statement</button>
+        <button class="btn-print" onclick="printStatement()" data-i18n="btn.print">🖨️ Print Statement</button>
     </div>
 
     <div class="table-container no-print">
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Dealer Name</th>
-                    <th>Phone</th>
-                    <th>Total Credit (₹)</th>
-                    <th>Actions</th>
-                    <th>Details</th>
+                    <th data-i18n="vd.th_id">ID</th>
+                    <th data-i18n="vd.th_name">Dealer Name</th>
+                    <th data-i18n="vd.th_phone">Phone</th>
+                    <th data-i18n="vd.th_credit">Total Credit (₹)</th>
+                    <th data-i18n="vd.th_actions">Actions</th>
+                    <th data-i18n="vd.th_details">Details</th>
                 </tr>
             </thead>
             <tbody>
@@ -117,15 +115,24 @@
 
                     while (rs.next()) {
                         hasData = true;
-                        int    id     = rs.getInt("id");
-                        String name   = rs.getString("name");
+                        int    id          = rs.getInt("id");
+                        String name        = rs.getString("name");
+                        String marathiName = rs.getString("marathi_name");
+                        if (marathiName == null) marathiName = "";
                         String phone  = rs.getString("phone");
                         double credit = rs.getDouble("credit");
             %>
                 <tr>
                     <td><strong>#<%= id %></strong></td>
                     <td style="text-align:left; font-weight:600; color:#2b0d73;">
-                        <span style="font-size:16px;">🏬</span> <%= name %>
+                        <span style="font-size:16px;">🏬</span>
+                        <span class="lang-name-en"><%= name %></span>
+                        <span class="lang-name-mr" style="display:none;">
+                            <%= marathiName.isEmpty() ? name : marathiName %>
+                        </span>
+                        <% if (!marathiName.isEmpty()) { %>
+                        <div style="font-size:11px; color:#888; margin-top:2px; display:block;" class="lang-name-en">(<%= marathiName %>)</div>
+                        <% } %>
                     </td>
                     <td>📞 <%= phone %></td>
                     <td>
@@ -154,13 +161,14 @@
                     <td>
                         <div class="action-btns">
                             <a href="add_credit_dealer.jsp?id=<%= id %>"
-                               class="btn-action-add">➕ Add Credit</a>
+                               class="btn-action-add" data-i18n="btn.add_credit">➕ Add Credit</a>
                             <a href="settle_credit_dealer.jsp?id=<%= id %>"
-                               class="btn-action-settle">✅ Settle</a>
+                               class="btn-action-settle" data-i18n="btn.settle">✅ Settle</a>
                         </div>
                     </td>
                     <td>
                         <a href="dealerdetails.jsp?dealer_id=<%= id %>" class="btn-view"
+                           data-i18n="btn.view"
                            onclick="parent.updateParentBreadcrumb('Dealer Details','dealerdetails.jsp')">
                            📄 View
                         </a>
@@ -170,7 +178,7 @@
                     }
                     if (!hasData) {
             %>
-                <tr><td colspan="6" class="no-data">⚠ No dealers found.</td></tr>
+                <tr><td colspan="6" class="no-data" data-i18n="vd.no_data">⚠ No dealers found.</td></tr>
             <%
                     }
                 } catch (Exception e) {
@@ -185,29 +193,35 @@
 
 </div>
 
+<script src="js/i18n.js"></script>
 <script>
-// ── Shop identity (loaded from DB via ShopConfig) ──────────────────────────
 var SHOP_NAME = "<%= shopEnNameJs %>";
 
 var dealerData = [
 <%
     try (Connection conn = DBConnection.getConnection();
          java.sql.Statement st = conn.createStatement();
-         ResultSet rs = st.executeQuery("SELECT id, name, phone, credit FROM dealers ORDER BY id ASC")) {
+         ResultSet rs = st.executeQuery("SELECT id, name, NVL(marathi_name,'') AS marathi_name, phone, credit FROM dealers ORDER BY id ASC")) {
         boolean first = true;
         while (rs.next()) {
             if (!first) out.print(",");
             first = false;
-            out.print("{id:" + rs.getInt("id") + ",name:\"" + rs.getString("name").replace("\"","\\\"") + "\",phone:\"" + rs.getString("phone") + "\",credit:" + rs.getDouble("credit") + "}");
+            String nm  = rs.getString("name").replace("\"","\\\"");
+            String mrn = rs.getString("marathi_name").replace("\"","\\\"");
+            out.print("{id:" + rs.getInt("id") +
+                ",name:\"" + nm + "\"" +
+                ",marathiName:\"" + mrn + "\"" +
+                ",phone:\"" + rs.getString("phone") + "\"" +
+                ",credit:" + rs.getDouble("credit") + "}");
         }
     } catch (Exception e) {}
 %>
 ];
 
 function toggleCredit(id, amount) {
-    var span      = document.getElementById('dcredit-'     + id);
-    var eyeOpen   = document.getElementById('deye-open-'   + id);
-    var eyeClosed = document.getElementById('deye-closed-' + id);
+    var span      = document.getElementById('dcredit-'    + id);
+    var eyeOpen   = document.getElementById('deye-open-'  + id);
+    var eyeClosed = document.getElementById('deye-closed-'+ id);
     if (span.textContent === '••••••') {
         span.textContent        = '₹ ' + parseFloat(amount).toFixed(2);
         eyeOpen.style.display   = 'none';
@@ -220,7 +234,9 @@ function toggleCredit(id, amount) {
 }
 
 function printStatement() {
-    var now = new Date();
+    var lang   = i18n.getLang();
+    var isMr   = (lang === 'mr');
+    var now    = new Date();
     var dateStr = now.toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
     var timeStr = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
 
@@ -229,43 +245,43 @@ function printStatement() {
     var sNo = 1;
     dealerData.forEach(function(d) {
         total += d.credit;
+        var displayName = isMr && d.marathiName ? d.marathiName : d.name;
         var bg = sNo % 2 === 0 ? 'background:#fff8f0;' : '';
         rows += '<tr style="' + bg + '">' +
             '<td style="padding:9px 12px;border-bottom:1px solid #e2e8f0;">' + sNo++ + '</td>' +
             '<td style="padding:9px 12px;border-bottom:1px solid #e2e8f0;">#' + d.id + '</td>' +
-            '<td style="padding:9px 12px;border-bottom:1px solid #e2e8f0;">' + d.name + '</td>' +
+            '<td style="padding:9px 12px;border-bottom:1px solid #e2e8f0;">' + displayName + '</td>' +
             '<td style="padding:9px 12px;border-bottom:1px solid #e2e8f0;">' + d.phone + '</td>' +
             '<td style="padding:9px 12px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;">&#8377; ' + d.credit.toFixed(2) + '</td>' +
             '</tr>';
     });
 
+    var title      = isMr ? 'डीलर उधार विवरण' : 'Dealer Credit Statement';
+    var totalLabel = isMr ? 'एकूण थकबाकी उधार' : 'Total Outstanding Credit';
+    var headers    = isMr ? ['अ.क्र.','डीलर क्र.','नाव','दूरध्वनी','उधार रक्कम (₹)']
+                          : ['#','Dealer ID','Dealer Name','Phone No.','Credit Amount (Rs.)'];
+
     var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
-        '<title>Dealer Credit Statement - ' + SHOP_NAME + '</title>' +
-        '<style>' +
-        'body{font-family:Arial,sans-serif;margin:30px;color:#0d1b2a;}' +
+        '<title>' + title + ' - ' + SHOP_NAME + '</title>' +
+        '<style>body{font-family:Arial,sans-serif;margin:30px;color:#0d1b2a;}' +
         '.header{text-align:center;border-bottom:3px double #7a3800;padding-bottom:14px;margin-bottom:20px;}' +
         '.shop-name{font-size:26px;font-weight:800;letter-spacing:2px;text-transform:uppercase;}' +
         '.report-title{font-size:14px;font-weight:600;color:#4a5568;margin-top:4px;}' +
-        '.report-meta{font-size:12px;color:#94a3b8;margin-top:5px;}' +
         'table{width:100%;border-collapse:collapse;font-size:13px;}' +
-        'th{background:#7a3800;color:#fff;padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.6px;}' +
+        'th{background:#7a3800;color:#fff;padding:10px 12px;font-size:11px;}' +
         'tfoot td{background:#fff3e0;font-weight:700;border-top:2px solid #7a3800;padding:11px 12px;}' +
         '.footer{margin-top:20px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:10px;}' +
-        '@media print{body{margin:15px;}}' +
-        '</style></head><body>' +
+        '@media print{body{margin:15px;}}</style></head><body>' +
         '<div class="header">' +
         '<div class="shop-name">' + SHOP_NAME + '</div>' +
-        '<div class="report-title">Dealer Credit Statement</div>' +
-        '<div class="report-meta">Generated on: ' + dateStr + ' at ' + timeStr + '</div>' +
+        '<div class="report-title">' + title + '</div>' +
+        '<div style="font-size:12px;color:#94a3b8;margin-top:5px;">Generated: ' + dateStr + ' at ' + timeStr + '</div>' +
         '</div>' +
-        '<table><thead><tr>' +
-        '<th>#</th><th>Dealer ID</th><th>Dealer Name</th><th>Phone No.</th><th style="text-align:right;">Credit Amount (Rs.)</th>' +
-        '</tr></thead><tbody>' + rows + '</tbody>' +
-        '<tfoot><tr>' +
-        '<td colspan="4" style="text-align:right;font-size:13px;">Total Outstanding Credit</td>' +
-        '<td style="text-align:right;font-size:14px;">&#8377; ' + total.toFixed(2) + '</td>' +
-        '</tr></tfoot></table>' +
-        '<div class="footer">' + SHOP_NAME + ' &middot; Dealer Credit Statement &middot; Printed on ' + dateStr + '</div>' +
+        '<table><thead><tr>' + headers.map(function(h){ return '<th>' + h + '</th>'; }).join('') + '</tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+        '<tfoot><tr><td colspan="4" style="text-align:right;">' + totalLabel + '</td>' +
+        '<td style="text-align:right;">&#8377; ' + total.toFixed(2) + '</td></tr></tfoot></table>' +
+        '<div class="footer">' + SHOP_NAME + ' &middot; ' + title + ' &middot; ' + dateStr + '</div>' +
         '</body></html>';
 
     var pw = window.open('', '_blank', 'width=900,height=650');

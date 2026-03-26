@@ -32,34 +32,6 @@
     <link rel="stylesheet" href="css/content.css">
     <style>
         body { padding: 0; background: #f0f2f8; }
-
-        /* Welcome Banner */
-        .welcome-banner {
-            background: linear-gradient(135deg, #0d1b2a 0%, #162538 60%, #1e3350 100%);
-            color: #fff;
-            padding: 30px 28px 28px;
-            position: relative;
-            overflow: hidden;
-        }
-        .welcome-banner::after {
-            content: '';
-            position: absolute;
-            right: -30px; top: -30px;
-            width: 240px; height: 240px;
-            background: radial-gradient(circle, rgba(240,165,0,0.1) 0%, transparent 70%);
-            pointer-events: none;
-        }
-        .welcome-banner h1 {
-            font-size: 24px; font-weight: 800;
-            margin-bottom: 4px;
-            background: linear-gradient(90deg, #fff 60%, #f0a500);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .welcome-banner p { font-size: 13px; color: rgba(255,255,255,0.45); }
-
-        /* Overview chips */
         .overview-row {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -77,10 +49,8 @@
             overflow: hidden;
         }
         .ov-chip::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
             border-radius: 14px 14px 0 0;
         }
         .ov-chip.c1::before { background: linear-gradient(90deg, #2563eb, #60a5fa); }
@@ -88,101 +58,92 @@
         .ov-chip.c3::before { background: linear-gradient(90deg, #c2730a, #f0a500); }
         .ov-chip.c4::before { background: linear-gradient(90deg, #b91c1c, #f87171); }
         .ov-chip.c5::before { background: linear-gradient(90deg, #6d28d9, #a78bfa); }
-
         .ov-chip .ov-icon { font-size: 24px; margin-bottom: 8px; }
-        .ov-chip .ov-val {
-            font-size: 22px; font-weight: 800;
-            color: #0d1b2a;
-            font-variant-numeric: tabular-nums;
-        }
+        .ov-chip .ov-val  { font-size: 22px; font-weight: 800; color: #0d1b2a; font-variant-numeric: tabular-nums; }
         .ov-chip .ov-val.money { font-size: 17px; }
-        .ov-chip .ov-label {
-            font-size: 11px; font-weight: 600;
-            color: #94a3b8; text-transform: uppercase;
-            letter-spacing: 0.8px; margin-top: 4px;
-        }
-
+        .ov-chip .ov-label { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px; }
         @media (max-width: 1100px) { .overview-row { grid-template-columns: repeat(3,1fr); } }
         @media (max-width: 640px)  { .overview-row { grid-template-columns: 1fr 1fr; } }
     </style>
 </head>
 <body>
 
-<!-- Overview -->
+<!-- Overview chips -->
 <div class="overview-row">
     <div class="ov-chip c1">
         <div class="ov-icon">👥</div>
         <div class="ov-val"><%= totalCustomers %></div>
-        <div class="ov-label">Customers</div>
+        <div class="ov-label" data-i18n="dash.total_customers">Customers</div>
     </div>
     <div class="ov-chip c2">
         <div class="ov-icon">💰</div>
         <div class="ov-val money">₹ <%= String.format("%,.0f", totalCustomerCredit) %></div>
-        <div class="ov-label">Customer Credit</div>
+        <div class="ov-label" data-i18n="dash.customer_credit">Customer Credit</div>
     </div>
     <div class="ov-chip c3">
         <div class="ov-icon">🏬</div>
         <div class="ov-val"><%= totalDealers %></div>
-        <div class="ov-label">Dealers</div>
+        <div class="ov-label" data-i18n="dash.total_dealers">Dealers</div>
     </div>
     <div class="ov-chip c4">
         <div class="ov-icon">💳</div>
         <div class="ov-val money">₹ <%= String.format("%,.0f", totalDealerCredit) %></div>
-        <div class="ov-label">Dealer Credit</div>
+        <div class="ov-label" data-i18n="dash.dealer_credit">Dealer Credit</div>
     </div>
     <div class="ov-chip c5">
         <div class="ov-icon">📦</div>
         <div class="ov-val"><%= totalProducts %></div>
-        <div class="ov-label">Products</div>
+        <div class="ov-label" data-i18n="dash.total_products">Products</div>
     </div>
 </div>
 
 <!-- Quick Actions -->
-<div class="section-label">Quick Actions</div>
+<div class="section-label" data-i18n="dash.quick_actions">Quick Actions</div>
 
-<div class="cards-grid" style="padding-top: 8px;">
+<div class="cards-grid" style="padding-top:8px;">
 
     <div class="dash-card card-blue" onclick="parent.loadPage('add_customer.jsp','Add Customer',null)">
         <div class="card-icon">➕</div>
         <div>
-            <h3>Add Customer</h3>
-            <p>Register a new customer with credit account</p>
+            <h3 data-i18n="dash.add_customer">Add Customer</h3>
+            <p data-i18n="dash.add_customer_desc">Register a new customer with credit account</p>
         </div>
     </div>
 
     <div class="dash-card card-green" onclick="parent.loadPage('view_customers.jsp','Customers',null)">
         <div class="card-icon">👥</div>
         <div>
-            <h3>Customers</h3>
-            <p>Manage credit &amp; transactions</p>
+            <h3 data-i18n="dash.customers">Customers</h3>
+            <p data-i18n="dash.customers_desc">Manage credit &amp; transactions</p>
         </div>
     </div>
 
     <div class="dash-card card-orange" onclick="parent.loadPage('add_dealer.jsp','Add Dealer',null)">
         <div class="card-icon">🏬</div>
         <div>
-            <h3>Add Dealer</h3>
-            <p>Register a new dealer supplier</p>
+            <h3 data-i18n="dash.add_dealer">Add Dealer</h3>
+            <p data-i18n="dash.add_dealer_desc">Register a new dealer supplier</p>
         </div>
     </div>
 
     <div class="dash-card card-purple" onclick="parent.loadPage('view_dealers.jsp','Dealers',null)">
         <div class="card-icon">📋</div>
         <div>
-            <h3>Dealers</h3>
-            <p>Manage dealer credit &amp; stock</p>
+            <h3 data-i18n="dash.dealers">Dealers</h3>
+            <p data-i18n="dash.dealers_desc">Manage dealer credit &amp; stock</p>
         </div>
     </div>
 
     <div class="dash-card card-teal" onclick="parent.loadPage('view_products.jsp','Products',null)">
         <div class="card-icon">📦</div>
         <div>
-            <h3>Products</h3>
-            <p>View &amp; manage stock inventory</p>
+            <h3 data-i18n="dash.products">Products</h3>
+            <p data-i18n="dash.products_desc">View &amp; manage stock inventory</p>
         </div>
     </div>
 
 </div>
 
+<script src="js/i18n.js"></script>
 </body>
 </html>

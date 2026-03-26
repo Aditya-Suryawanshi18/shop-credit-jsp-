@@ -14,8 +14,11 @@ public class AddProductServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String productName = request.getParameter("productName");
-        String quantityStr = request.getParameter("quantity");
+        request.setCharacterEncoding("UTF-8");
+
+        String productName   = request.getParameter("productName");
+        String marathiName   = request.getParameter("marathiName"); // optional
+        String quantityStr   = request.getParameter("quantity");
 
         if (productName == null || productName.trim().isEmpty()
                 || quantityStr == null || quantityStr.trim().isEmpty()) {
@@ -23,14 +26,19 @@ public class AddProductServlet extends HttpServlet {
             return;
         }
 
+        // Sanitise optional Marathi name
+        if (marathiName != null && marathiName.trim().isEmpty()) marathiName = null;
+        if (marathiName != null) marathiName = marathiName.trim();
+
         try (Connection conn = DBConnection.getConnection()) {
             int quantity = Integer.parseInt(quantityStr.trim());
 
-            String sql = "INSERT INTO products (id, product_name, quantity) "
-                       + "VALUES (product_seq.NEXTVAL, ?, ?)";
+            String sql = "INSERT INTO products (id, product_name, marathi_name, quantity) "
+                       + "VALUES (product_seq.NEXTVAL, ?, ?, ?)";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, productName.trim());
-            ps.setInt(2, quantity);
+            ps.setString(2, marathiName);   // NULL if not provided
+            ps.setInt(3, quantity);
             ps.executeUpdate();
 
             response.sendRedirect("view_products.jsp?success=Product added successfully");
