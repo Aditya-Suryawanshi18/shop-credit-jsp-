@@ -63,7 +63,7 @@
     <style>
         /* ── Page header banner ── */
         .sale-header {
-            background: linear-gradient(135deg, #065f46 0%, #059669 100%);
+            background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
             color: #fff; border-radius: 14px; padding: 18px 24px;
             margin-bottom: 22px; display: flex; align-items: center;
             gap: 16px; flex-wrap: wrap;
@@ -103,7 +103,7 @@
 
         /* ── Input panel ── */
         .input-panel { background: #fff; border-radius: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); overflow: hidden; position: sticky; top: 10px; }
-        .input-panel-header { background: linear-gradient(90deg,#065f46,#059669); color: #fff; padding: 13px 18px; font-size: 13px; font-weight: 700; }
+        .input-panel-header { background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); color: #fff; padding: 13px 18px; font-size: 13px; font-weight: 700; }
         .input-panel-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
         .ip-group { display: flex; flex-direction: column; gap: 5px; }
         .ip-group label { font-size: 12px; font-weight: 700; color: #065f46; }
@@ -123,7 +123,7 @@
         .stock-strip.zero .snum { background: #dc2626; }
 
         .row-preview { background: #ecfdf5; border: 1px dashed #6ee7b7; border-radius: 8px; padding: 9px 14px; font-size: 13px; color: #065f46; font-weight: 700; text-align: center; display: none; }
-        .btn-add-to-table { width: 100%; padding: 11px; background: linear-gradient(135deg,#065f46,#059669); color: #fff; border: none; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.15s; }
+        .btn-add-to-table { width: 100%; padding: 11px; background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); color: #fff; border: none; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.15s; }
         .btn-add-to-table:hover { opacity: 0.88; transform: scale(1.02); }
 
         /* ── Payment mode selector ── */
@@ -131,19 +131,19 @@
         .pay-opt { flex: 1; position: relative; }
         .pay-opt input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
         .pay-opt label { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 14px; border: 2px solid #d1fae5; border-radius: 9px; background: #f0fdf4; cursor: pointer; font-size: 13px; font-weight: 700; color: #065f46; transition: all 0.18s; }
-        .pay-opt input[type="radio"]:checked + label { border-color: #059669; background: linear-gradient(135deg,#065f46,#059669); color: #fff; box-shadow: 0 3px 12px rgba(5,150,105,0.25); }
+        .pay-opt input[type="radio"]:checked + label { border-color: #6ee7b7; background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); color: #fff; box-shadow: 0 3px 12px rgba(5,150,105,0.25); }
         .pay-opt label:hover { border-color: #6ee7b7; }
 
         /* ── Table panel ── */
         .table-panel { background: #fff; border-radius: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); overflow: hidden; }
-        .table-panel-header { background: linear-gradient(90deg,#065f46,#059669); color: #fff; padding: 13px 18px; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
+        .table-panel-header { background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); color: #fff; padding: 13px 18px; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
         .txn-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .txn-table thead th { background: #f0fdf4; color: #065f46; padding: 10px 12px; text-align: center; font-weight: 700; font-size: 12px; border-bottom: 2px solid #6ee7b7; }
         .txn-table tbody td { padding: 9px 11px; border-bottom: 1px solid #ecfdf5; text-align: center; vertical-align: middle; }
         .txn-table tbody tr:last-child td { border-bottom: none; }
         .txn-table tbody tr:hover { background: #f0fdf4; }
-        .txn-table tfoot td { padding: 12px 14px; background: #065f46; color: #fff; font-weight: 700; font-size: 14px; text-align: right; }
-        .txn-table tfoot td.grand-val { text-align: center; font-size: 16px; color: #6ee7b7; }
+        .txn-table tfoot td { padding: 12px 14px; background: orange; color: #fff; font-weight: 700; font-size: 14px; text-align: right; }
+        .txn-table tfoot td.grand-val { text-align: center; font-size: 16px; color: #fff; }
         .empty-msg td { padding: 32px !important; color: #bbb; font-size: 13px; font-style: italic; text-align: center !important; }
         .btn-remove { width: 26px; height: 26px; background: #fee2e2; color: #dc2626; border: none; border-radius: 5px; font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background 0.2s; }
         .btn-remove:hover { background: #dc2626; color: #fff; }
@@ -153,14 +153,14 @@
         .total-num { font-weight: 700; color: #065f46; }
 
         /* ── Grand total bar ── */
-        .grand-bar { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(90deg,#065f46,#059669); color: #fff; border-radius: 10px; padding: 13px 20px; margin-top: 16px; }
+        .grand-bar { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); color: #fff; border-radius: 10px; padding: 13px 20px; margin-top: 16px; }
         .grand-bar .g-label { font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 600; }
         .grand-bar .g-val   { font-size: 22px; font-weight: 800; }
         .grand-bar .g-count { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 1px; }
         .save-row { display: flex; gap: 14px; margin-top: 16px; justify-content: flex-end; }
 
         /* ── Badge ── */
-        .badge-cash-sale { display: inline-flex; align-items: center; gap: 4px; background: rgba(5,150,105,0.1); color: #065f46; border: 1px solid rgba(5,150,105,0.2); padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-cash-sale { display: inline-flex; align-items: center; gap: 4px; background: rgba(255, 255, 255, 0.15);   padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -170,19 +170,18 @@
     <div class="alert alert-error">❌ <%= request.getParameter("error") %></div>
     <% } %>
 
-    <a href="view_customers.jsp" class="back-link">← Back to Customers</a>
-
+  
     <!-- Page Banner -->
     <div class="sale-header">
         <div class="sh-icon">💵</div>
         <div>
-            <h2>Cash Sale</h2>
+            <h2 data-i18n="nav.cash">Cash Sale</h2>
             <p>
                 <span class="lang-name-en">Record an immediate cash / online payment sale — no credit added to the account.</span>
                 <span class="lang-name-mr" style="display:none;">त्वरित रोख / ऑनलाइन विक्री नोंदवा — खात्यावर उधार जोडली जाणार नाही.</span>
             </p>
         </div>
-        <span class="badge-cash-sale" style="margin-left:auto;">🟢 PAID SALE</span>
+        <span class="badge-cash-sale" data-i18n="nav.cash" style="margin-left:auto;">🟢 PAID SALE</span>
     </div>
 
     <!-- Customer Selector -->
@@ -209,7 +208,7 @@
 
         <!-- LEFT: Input Panel -->
         <div class="input-panel">
-            <div class="input-panel-header">🛒 Add Product to Sale</div>
+            <div class="input-panel-header" data-i18n="ac.panel_hdr" >🛒 Add Product </div>
             <div class="input-panel-body">
 
                 <div class="ip-group">
@@ -322,7 +321,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="4" style="text-align:right;color:rgba(255,255,255,0.6);">
+                            <td colspan="4" style="text-align:right;">
                                 <span class="lang-name-en">Grand Total</span>
                                 <span class="lang-name-mr" style="display:none;">एकूण</span>
                             </td>
@@ -342,7 +341,7 @@
                     <div class="g-val" id="grandDisplay">₹ 0.00</div>
                     <div class="g-count" id="grandCount">0 item(s)</div>
                 </div>
-                <span style="font-size:32px;opacity:0.35;">💵</span>
+                <span style="font-size:32px;">💵</span>
             </div>
 
             <div class="save-row">
@@ -352,7 +351,7 @@
                     <span class="lang-name-mr" style="display:none;">रद्द करा</span>
                 </a>
                 <button type="button" class="btn-save"
-                        style="background:linear-gradient(135deg,#065f46,#059669);box-shadow:0 4px 16px rgba(5,150,105,0.3);"
+                        style="background:linear-gradient(135deg, #f97316 0%, #fb923c 100%);box-shadow:0 4px 16px rgba(5,150,105,0.3);"
                         onclick="submitSale()">
                     💾
                     <span class="lang-name-en">Save Cash Sale</span>

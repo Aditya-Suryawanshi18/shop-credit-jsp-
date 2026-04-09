@@ -19,6 +19,7 @@
       'nav.products':      'Products',
       'nav.requests':      'Requests',
       'nav.sign_out':      'Sign Out',
+	  'nav.cash':          'Cash Sale',
 
       /* ─── Logout modal ─── */
       'logout.title':   'Sign Out?',
@@ -200,6 +201,7 @@
       'nav.products':      'उत्पादने',
       'nav.requests':      'विनंत्या',
       'nav.sign_out':      'बाहेर पडा',
+	  'nav.cash':		   'रोख विक्री',
 
       /* ─── Logout modal ─── */
       'logout.title':   'बाहेर पडायचे?',
