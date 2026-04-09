@@ -123,6 +123,14 @@
             </a>
             <span class="tooltip-label" data-i18n="nav.requests">Requests</span>
         </li>
+        
+        <li data-page="cash_sale.jsp">
+		    <a href="#" onclick="loadPage('cash_sale.jsp','Cash Sale',this);return false;">
+		        <span class="menu-icon">💵</span>
+		        <span class="menu-label">Cash Sale</span>
+		    </a>
+		    <span class="tooltip-label">Cash Sale</span>
+		</li>
 
     </ul>
 
