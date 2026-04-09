@@ -12,7 +12,7 @@ public class DBConnection {
 
             if (conn == null || conn.isClosed()) {
                 conn = DriverManager.getConnection(
-                    "jdbc:oracle:thin:@//192.168.1.110:1521/XEPDB1",
+                		"jdbc:oracle:thin:@localhost:1521/XEPDB1",
                     "spring",
                     "info123"
                 );
