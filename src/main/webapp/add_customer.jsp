@@ -90,7 +90,7 @@
                         <span style="color:#ff4757;">*</span>
                     </label>
                     <input type="number" id="credit" name="credit"
-                           placeholder="0.00" step="0.01" min="0" required>
+                           placeholder="0.00" step="0.01" min="0" value="0" required>
                 </div>
 
             </div>
