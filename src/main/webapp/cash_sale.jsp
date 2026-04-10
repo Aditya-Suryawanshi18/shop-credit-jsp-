@@ -1,10 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.sql.*, doa.DBConnection" %>
+<%@ page import="java.sql.*, doa.DBConnection, doa.ShopConfig, java.time.LocalDateTime, java.time.format.DateTimeFormatter" %>
 <%
     if (session.getAttribute("admin") == null) {
         response.sendRedirect("login.jsp?error=Please login first");
         return;
     }
+
+    /* ── Load shop config ── */
+    ShopConfig shop = ShopConfig.getInstance();
+    String shopEnglishName = shop.getEnglishName();
+    String shopMarathiName = shop.getMarathiName();
 
     /* ── Optional: pre-select a customer via ?id=  ── */
     String idStr     = request.getParameter("id");
@@ -95,15 +100,11 @@
         .sale-header p  { font-size: 12px; color: rgba(255,255,255,0.75); margin: 0; }
 
         /* ══════════════════════════════════════════
-           CUSTOMER SELECTOR AREA  (NEW)
+           CUSTOMER SELECTOR AREA
         ══════════════════════════════════════════ */
 
-        /* -- Mode toggle row -- */
         .cust-mode-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
+            display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
         }
         .cust-mode-btn {
             flex: 1; min-width: 200px;
@@ -128,7 +129,6 @@
         .cust-mode-btn .cmb-title { font-size: 14px; font-weight: 700; }
         .cust-mode-btn .cmb-sub   { font-size: 11px; font-weight: 500; opacity: 0.65; }
 
-        /* existing customer option */
         .cust-mode-btn.mode-existing { color: #065f46; border-color: #d1fae5; }
         .cust-mode-btn.mode-existing .cmb-icon { background: #d1fae5; }
         .cust-mode-btn.mode-existing.active,
@@ -138,7 +138,6 @@
             box-shadow: 0 4px 16px rgba(5,150,105,0.15);
         }
 
-        /* new customer option */
         .cust-mode-btn.mode-new { color: #1e40af; border-color: #dbeafe; }
         .cust-mode-btn.mode-new .cmb-icon { background: #dbeafe; }
         .cust-mode-btn.mode-new.active,
@@ -148,7 +147,6 @@
             box-shadow: 0 4px 16px rgba(37,99,235,0.15);
         }
 
-        /* -- Existing customer card (shown when mode = existing) -- */
         .cust-select-card {
             background: #fff; border-radius: 14px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.08);
@@ -167,7 +165,6 @@
         }
         .cust-select-card select:focus { border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,0.1); }
 
-        /* -- New customer redirect card -- */
         .new-cust-card {
             background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
             border: 2px solid #bfdbfe;
@@ -203,7 +200,6 @@
             box-shadow: 0 8px 24px rgba(37,99,235,0.4);
         }
 
-        /* -- Pre-selected customer banner (when ?id= passed) -- */
         .preselected-banner {
             background: linear-gradient(135deg, #059669 0%, #10b981 100%);
             color: #fff; border-radius: 14px; padding: 16px 22px;
@@ -236,7 +232,6 @@
         }
         .btn-change-cust:hover { background: rgba(255,255,255,0.28); }
 
-        /* ── Selected customer pill (dropdown mode) ── */
         .cust-pill {
             display: none; background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
             color: #fff; border-radius: 10px; padding: 10px 18px;
@@ -244,11 +239,9 @@
         }
         .cust-pill .cp-credit { font-size: 11px; color: rgba(255,255,255,0.7); margin-top:2px; }
 
-        /* ── Main layout ── */
         .main-layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
         @media (max-width: 860px) { .main-layout { grid-template-columns: 1fr; } }
 
-        /* ── Input panel ── */
         .input-panel { background: #fff; border-radius: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); overflow: hidden; position: sticky; top: 10px; }
         .input-panel-header { background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); color: #fff; padding: 13px 18px; font-size: 13px; font-weight: 700; }
         .input-panel-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
@@ -274,7 +267,6 @@
         .btn-add-to-table { width: 100%; padding: 11px; background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); color: #fff; border: none; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.15s; }
         .btn-add-to-table:hover { opacity: 0.88; transform: scale(1.02); }
 
-        /* ── Payment mode selector ── */
         .pay-mode-row { display: flex; gap: 10px; }
         .pay-opt { flex: 1; position: relative; }
         .pay-opt input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
@@ -282,7 +274,6 @@
         .pay-opt input[type="radio"]:checked + label { border-color: #6ee7b7; background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); color: #fff; box-shadow: 0 3px 12px rgba(5,150,105,0.25); }
         .pay-opt label:hover { border-color: #6ee7b7; }
 
-        /* ── Table panel ── */
         .table-panel { background: #fff; border-radius: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); overflow: hidden; }
         .table-panel-header { background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); color: #fff; padding: 13px 18px; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
         .txn-table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -300,7 +291,6 @@
         .price-num { color: #555; }
         .total-num { font-weight: 700; color: #065f46; }
 
-        /* ── Grand total bar ── */
         .grand-bar { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); color: #fff; border-radius: 10px; padding: 13px 20px; margin-top: 16px; }
         .grand-bar .g-label { font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 600; }
         .grand-bar .g-val   { font-size: 22px; font-weight: 800; }
@@ -309,12 +299,114 @@
 
         .badge-cash-sale { display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.15); padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
 
-        /* Product panel locked state */
         .panel-locked { opacity: 0.45; pointer-events: none; }
 
+        /* ══════════════════════════════════════════
+           RECEIPT MODAL
+        ══════════════════════════════════════════ */
+        .receipt-modal {
+            display: none;
+            position: fixed; z-index: 1000;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .receipt-modal.show { display: flex; animation: fadeIn 0.2s; }
+        .receipt-modal-content {
+            background: #fff;
+            border-radius: 16px;
+            width: 100%; max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s cubic-bezier(0.22,1,0.36,1);
+        }
+        .receipt-header {
+            background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px dashed rgba(0,0,0,0.1);
+        }
+        .receipt-header h2 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: 0.5px; }
+        .receipt-header .shop-name { font-size: 14px; font-weight: 600; margin-top: 4px; }
+        .receipt-body { padding: 20px; }
+        .receipt-section { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #e0e0e0; }
+        .receipt-section:last-of-type { border-bottom: none; }
+        .receipt-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+        .receipt-row-label { font-weight: 600; color: #333; }
+        .receipt-row-value { text-align: right; color: #666; }
+        .receipt-items { margin: 14px 0; }
+        .receipt-item-row {
+            display: grid;
+            grid-template-columns: 1fr 50px 70px 80px;
+            gap: 8px;
+            font-size: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .receipt-item-row:last-child { border-bottom: none; }
+        .receipt-grand {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+            color: #fff;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .receipt-footer {
+            text-align: center;
+            font-size: 11px;
+            color: #999;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+        }
+        .receipt-actions {
+            display: flex;
+            gap: 10px;
+            padding: 16px 20px;
+            border-top: 1px solid #e0e0e0;
+            background: #f9f9f9;
+            border-radius: 0 0 16px 16px;
+        }
+        .btn-receipt-action {
+            flex: 1;
+            padding: 11px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-receipt-print {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(5,150,105,0.25);
+        }
+        .btn-receipt-print:hover { transform: translateY(-2px); box-shadow: 0 5px 16px rgba(5,150,105,0.35); }
+        .btn-receipt-skip {
+            background: transparent;
+            color: #666;
+            border: 2px solid #ddd;
+        }
+        .btn-receipt-skip:hover { background: #f0f0f0; }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(32px) scale(0.98); opacity: 0; }
+            to   { transform: translateY(0) scale(1); opacity: 1; }
         }
     </style>
 </head>
@@ -391,7 +483,7 @@
             </button>
         </div>
 
-        <!-- Existing customer dropdown (hidden until mode = existing) -->
+        <!-- Existing customer dropdown -->
         <div class="cust-select-card" id="existingCustPanel" style="display:none;">
             <div class="csg">
                 <label for="custSelect">
@@ -410,7 +502,7 @@
             </div>
         </div>
 
-        <!-- New customer redirect card (hidden until mode = new) -->
+        <!-- New customer redirect card -->
         <div class="new-cust-card" id="newCustPanel" style="display:none;">
             <div class="ncc-icon">👤</div>
             <div class="ncc-text">
@@ -591,12 +683,74 @@
                     </a>
                     <button type="button" class="btn-save"
                             style="background:linear-gradient(135deg, #f97316 0%, #fb923c 100%);box-shadow:0 4px 16px rgba(249,115,22,0.3);"
-                            onclick="submitSale()">
+                            onclick="submitSaleWithReceipt()">
                         💾
-                        <span class="lang-name-en">Save Cash Sale</span>
-                        <span class="lang-name-mr" style="display:none;">रोख विक्री जतन करा</span>
+                        <span class="lang-name-en">Save & View Receipt</span>
+                        <span class="lang-name-mr" style="display:none;">जतन करा आणि पावती पहा</span>
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         RECEIPT MODAL
+    ══════════════════════════════════════════ -->
+    <div class="receipt-modal" id="receiptModal">
+        <div class="receipt-modal-content">
+            <div class="receipt-header">
+                <h2>🧾 RECEIPT</h2>
+                <div class="shop-name"><%= shopEnglishName %></div>
+            </div>
+
+            <div class="receipt-body">
+                <!-- Customer Info -->
+                <div class="receipt-section">
+                    <div class="receipt-row">
+                        <span class="receipt-row-label">Customer:</span>
+                        <span class="receipt-row-value" id="receiptCustomer">—</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-row-label">Payment Mode:</span>
+                        <span class="receipt-row-value" id="receiptPayMode">CASH</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-row-label">Date & Time:</span>
+                        <span class="receipt-row-value" id="receiptDateTime">—</span>
+                    </div>
+                </div>
+
+                <!-- Items -->
+                <div class="receipt-section">
+                    <div style="font-weight: 700; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #ddd;">Items Sold</div>
+                    <div class="receipt-items" id="receiptItems">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Grand Total -->
+                <div class="receipt-grand">
+                    <span>TOTAL:</span>
+                    <span id="receiptGrandTotal">₹ 0.00</span>
+                </div>
+
+                <!-- Footer -->
+                <div class="receipt-footer">
+                    <p style="margin: 0; padding: 8px 0;">Thank you for your purchase!</p>
+                    <p style="margin: 0; font-size: 10px; color: #bbb;">सधन्यवाद आपल्या खरेदीसाठी!</p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="receipt-actions">
+                <button class="btn-receipt-action btn-receipt-print" onclick="printReceipt()">
+                    🖨️ <span class="lang-name-en">Print Receipt</span>
+                    <span class="lang-name-mr" style="display:none;">पावती छापा</span>
+                </button>
+                <button class="btn-receipt-action btn-receipt-skip" onclick="skipPrintAndSave()">
+                    <span class="lang-name-en">Skip & Save</span>
+                    <span class="lang-name-mr" style="display:none;">वगळून जतन करा</span>
+                </button>
             </div>
         </div>
     </div>
@@ -615,10 +769,12 @@ var CUSTOMERS  = <%= customersJson.toString() %>;
 var PRODUCTS   = <%= productsJson.toString() %>;
 var PRESELECT  = <%= preselect %>;
 var HAS_PRESELECTED = <%= hasPreselected ? "true" : "false" %>;
+var SHOP_NAME  = "<%= shopEnglishName %>";
 
 var tableRows  = [];
 var rowSeq     = 0;
-var currentMode = ''; // 'existing' | 'new'
+var currentMode = '';
+var pendingSubmitData = null;
 
 function getLang() { return (typeof i18n !== 'undefined') ? i18n.getLang() : 'en'; }
 function isMr()    { return getLang() === 'mr'; }
@@ -638,7 +794,7 @@ function isMr()    { return getLang() === 'mr'; }
         ps.appendChild(opt);
     });
 
-    /* Customers (only needed in dropdown mode) */
+    /* Customers */
     var cs = document.getElementById('custSelect');
     if (cs) {
         var cph = document.getElementById('custPlaceholder');
@@ -653,7 +809,6 @@ function isMr()    { return getLang() === 'mr'; }
             opt.setAttribute('data-credit',  c.credit);
             cs.appendChild(opt);
         });
-        /* If PRESELECT is valid but no server-side match, still try JS select */
         if (PRESELECT > 0 && !HAS_PRESELECTED) {
             cs.value = PRESELECT;
             onCustChange();
@@ -661,12 +816,9 @@ function isMr()    { return getLang() === 'mr'; }
     }
 })();
 
-/* ══════════════════════════════════════════
-   MODE SELECTOR  (only in no-preselect mode)
-══════════════════════════════════════════ */
+/* ── Mode Selector ── */
 function setMode(mode) {
     currentMode = mode;
-
     var btnEx  = document.getElementById('btnModeExisting');
     var btnNew = document.getElementById('btnModeNew');
     var exPanel = document.getElementById('existingCustPanel');
@@ -679,12 +831,10 @@ function setMode(mode) {
     if (exPanel)  exPanel.style.display  = (mode === 'existing') ? 'flex' : 'none';
     if (newPanel) newPanel.style.display = (mode === 'new')      ? 'flex' : 'none';
 
-    /* Lock the sale section when "new customer" is selected */
     if (saleSection) {
         saleSection.classList.toggle('panel-locked', mode === 'new');
     }
 
-    /* Reset customer selection if switching back */
     if (mode === 'existing') {
         var cs = document.getElementById('custSelect');
         if (cs) { cs.value = ''; }
@@ -693,13 +843,11 @@ function setMode(mode) {
     }
 }
 
-/* Called from Change button when preselected banner is shown */
 function showModeSelector() {
-    /* Reload without the id param */
     window.location.href = 'cash_sale.jsp';
 }
 
-/* ── Customer change (dropdown mode) ── */
+/* ── Customer change ── */
 function onCustChange() {
     var sel  = document.getElementById('custSelect');
     if (!sel) return;
@@ -723,21 +871,33 @@ function onCustChange() {
         (mr ? 'सध्याची उधार: ₹ ' : 'Current Credit: ₹ ') + credit.toFixed(2);
     if (pill) pill.style.display = 'block';
 
-    /* Unlock sale section once a customer is chosen */
     if (saleSection) saleSection.classList.remove('panel-locked');
 }
 
-/* ── Resolve final customer ID for submission ── */
 function getSelectedCustomerId() {
-    /* Preselected via URL */
     var fixed = document.getElementById('fixedCustomerId');
     if (fixed) return fixed.value;
 
-    /* Dropdown mode */
     var cs = document.getElementById('custSelect');
     if (cs && cs.value) return cs.value;
 
     return null;
+}
+
+function getSelectedCustomerName() {
+    var fixed = document.getElementById('fixedCustomerId');
+    if (fixed) {
+        var preN = document.querySelector('.preselected-banner .pb-info h3');
+        return preN ? preN.textContent : 'Customer';
+    }
+
+    var cs = document.getElementById('custSelect');
+    if (cs && cs.value) {
+        var opt = cs.options[cs.selectedIndex];
+        return opt.getAttribute('data-name') || 'Customer';
+    }
+
+    return 'Customer';
 }
 
 /* ── Product change ── */
@@ -851,7 +1011,10 @@ function resetInputs() {
     document.getElementById('rowPreview').style.display = 'none';
 }
 
-function submitSale() {
+/* ═════════════════════════════════════════════════════════════
+   RECEIPT LOGIC
+   ═════════════════════════════════════════════════════════════ */
+function submitSaleWithReceipt() {
     var mr  = isMr();
     var cid = getSelectedCustomerId();
     if (!cid)                   { alert(mr ? '⚠️ कृपया ग्राहक निवडा.'          : '⚠️ Please select a customer.'); return; }
@@ -860,13 +1023,81 @@ function submitSale() {
     var payMode = document.querySelector('input[name="payMode"]:checked');
     var pm = payMode ? payMode.value : 'CASH';
 
-    var items = tableRows.map(function (r) {
-        return { productId: r.productId, productName: r.productName, quantity: r.qty, unitPrice: r.unitPrice, amount: r.amount };
-    });
+    /* Store pending data */
+    pendingSubmitData = {
+        customerId: cid,
+        items: tableRows.map(function (r) {
+            return { productId: r.productId, productName: r.productName, quantity: r.qty, unitPrice: r.unitPrice, amount: r.amount };
+        }),
+        paymentMode: pm
+    };
 
-    document.getElementById('customerIdInput').value  = cid;
-    document.getElementById('itemsJsonInput').value   = JSON.stringify(items);
-    document.getElementById('paymentModeInput').value = pm;
+    /* Show receipt */
+    showReceipt();
+}
+
+function showReceipt() {
+    var mr = isMr();
+    var custName = getSelectedCustomerName();
+    var pm = pendingSubmitData.paymentMode;
+    var grand = 0;
+    pendingSubmitData.items.forEach(function (item) { grand += item.amount; });
+
+    /* Populate receipt */
+    document.getElementById('receiptCustomer').textContent = custName;
+    document.getElementById('receiptPayMode').textContent = pm === 'CASH' ? (mr ? 'रोख' : 'CASH') : (mr ? 'ऑनलाइन' : 'ONLINE');
+
+    var now = new Date();
+    var dateStr = now.toLocaleString(mr ? 'mr-IN' : 'en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    document.getElementById('receiptDateTime').textContent = dateStr;
+
+    var itemsHTML = '';
+    pendingSubmitData.items.forEach(function (item, idx) {
+        itemsHTML += '<div class="receipt-item-row">' +
+            '<span>' + item.productName + '</span>' +
+            '<span style="text-align:center;">' + item.quantity + '</span>' +
+            '<span style="text-align:right;">₹' + item.unitPrice.toFixed(2) + '</span>' +
+            '<span style="text-align:right;">₹' + item.amount.toFixed(2) + '</span>' +
+            '</div>';
+    });
+    document.getElementById('receiptItems').innerHTML = itemsHTML;
+    document.getElementById('receiptGrandTotal').textContent = '₹ ' + grand.toFixed(2);
+
+    /* Show modal */
+    var modal = document.getElementById('receiptModal');
+    modal.classList.add('show');
+}
+
+function printReceipt() {
+    var printWindow = window.open('', '', 'height=600,width=500');
+    var content = document.querySelector('.receipt-modal-content').innerHTML;
+    printWindow.document.write('<html><head><title>Receipt</title>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial; font-size: 12px; margin: 10px; }');
+    printWindow.document.write('.receipt-modal-content { max-width: 100%; }');
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write(content);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+
+    /* After print, save */
+    setTimeout(function () { saveTransaction(); }, 500);
+}
+
+function skipPrintAndSave() {
+    saveTransaction();
+}
+
+function saveTransaction() {
+    document.getElementById('customerIdInput').value  = pendingSubmitData.customerId;
+    document.getElementById('itemsJsonInput').value   = JSON.stringify(pendingSubmitData.items);
+    document.getElementById('paymentModeInput').value = pendingSubmitData.paymentMode;
+
+    /* Hide receipt modal */
+    document.getElementById('receiptModal').classList.remove('show');
+
+    /* Submit form */
     document.getElementById('submitForm').submit();
 }
 </script>
