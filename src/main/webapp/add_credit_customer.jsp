@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.sql.*, doa.DBConnection" %>
+<%@ page import="java.sql.*, doa.DBConnection, doa.ShopConfig" %>
 <%
     if (session.getAttribute("admin") == null) {
         response.sendRedirect("login.jsp?error=Please login first");
@@ -32,6 +32,11 @@
         response.sendRedirect("view_customers.jsp?error=" + e.getMessage());
         return;
     }
+
+    /* ── Load shop config for receipt header ── */
+    ShopConfig shop = ShopConfig.getInstance();
+    String shopEnglishName = shop.getEnglishName();
+    String shopMarathiName = shop.getMarathiName();
 
     StringBuilder productsJson = new StringBuilder("[");
     try (Connection conn = DBConnection.getConnection()) {
@@ -116,6 +121,116 @@
         .grand-bar .g-val   { font-size:22px;font-weight:800;color:#e8f5e9; }
         .grand-bar .g-count { font-size:11px;color:#81c784;margin-top:1px; }
         .save-row { display:flex;gap:14px;margin-top:16px;justify-content:flex-end; }
+
+        /* ══════════════════════════════
+           RECEIPT MODAL
+        ══════════════════════════════ */
+        .receipt-modal {
+            display: none;
+            position: fixed; z-index: 1000;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .receipt-modal.show { display: flex; animation: rcFadeIn 0.2s ease; }
+        .receipt-modal-content {
+            background: #fff;
+            border-radius: 16px;
+            width: 100%; max-width: 480px;
+            max-height: 82vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+            animation: rcSlideUp 0.28s cubic-bezier(0.22,1,0.36,1);
+        }
+        .receipt-header {
+            background: linear-gradient(135deg, #2b0d73 0%, #4a2fa0 100%);
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px dashed rgba(255,255,255,0.15);
+        }
+        .receipt-header h2 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: 0.5px; }
+        .receipt-header .receipt-shop { font-size: 13px; font-weight: 600; margin-top: 4px; color: rgba(255,255,255,0.75); }
+        .receipt-body { padding: 20px; }
+        .receipt-section { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #ede9ff; }
+        .receipt-section:last-of-type { border-bottom: none; }
+        .receipt-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+        .receipt-row-label { font-weight: 600; color: #373279; }
+        .receipt-row-value { text-align: right; color: #555; }
+        .receipt-item-row {
+            display: grid;
+            grid-template-columns: 1fr 50px 70px 80px;
+            gap: 6px;
+            font-size: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0eeff;
+        }
+        .receipt-item-row:last-child { border-bottom: none; }
+        .receipt-item-row .col-name { color: #1a1a2a; font-weight: 600; }
+        .receipt-item-row .col-qty  { text-align: center; color: #2b0d73; font-weight: 700; }
+        .receipt-item-row .col-price { text-align: right; color: #555; }
+        .receipt-item-row .col-amt  { text-align: right; font-weight: 700; color: #1b5e20; }
+        .receipt-grand {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, #2b0d73 0%, #4a2fa0 100%);
+            color: #fff;
+            border-radius: 10px;
+            margin: 12px 0;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .receipt-grand .rg-label { color: rgba(255,255,255,0.7); font-size: 12px; display: block; margin-top: 2px; }
+        .receipt-footer {
+            text-align: center;
+            font-size: 11px;
+            color: #999;
+            padding-top: 10px;
+            border-top: 1px dashed #c8b7f6;
+            margin-top: 2px;
+        }
+        .receipt-actions {
+            display: flex;
+            gap: 10px;
+            padding: 14px 20px;
+            border-top: 1px solid #ede9ff;
+            background: #f9f7ff;
+            border-radius: 0 0 16px 16px;
+        }
+        .btn-receipt-action {
+            flex: 1;
+            padding: 11px;
+            border: none;
+            border-radius: 9px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-receipt-print {
+            background: linear-gradient(135deg, #2b0d73 0%, #4a2fa0 100%);
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(43,13,115,0.28);
+        }
+        .btn-receipt-print:hover { transform: translateY(-2px); box-shadow: 0 5px 18px rgba(43,13,115,0.38); }
+        .btn-receipt-skip {
+            background: transparent;
+            color: #666;
+            border: 2px solid #c8b7f6;
+        }
+        .btn-receipt-skip:hover { background: #f0eeff; }
+
+        @keyframes rcFadeIn  { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes rcSlideUp {
+            from { transform: translateY(28px) scale(0.97); opacity: 0; }
+            to   { transform: translateY(0) scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -227,10 +342,82 @@
                 <a href="view_customers.jsp" class="btn-clear"
                    style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:10px 28px;"
                    data-i18n="btn.cancel">Cancel</a>
-                <button type="button" class="btn-save" onclick="submitTransaction()" data-i18n="ac.btn_save">
-                    💾 Save Credit Transaction
+                <!-- Changed: calls showReceiptModal() instead of submitTransaction() -->
+                <button type="button" class="btn-save" onclick="showReceiptModal()" data-i18n="ac.btn_save">
+                    💾 Save &amp; View Receipt
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════
+         RECEIPT MODAL
+    ══════════════════════════════ -->
+    <div class="receipt-modal" id="receiptModal">
+        <div class="receipt-modal-content">
+
+            <div class="receipt-header">
+                <h2>🧾 CREDIT RECEIPT</h2>
+                <div class="receipt-shop"><%= shopEnglishName %></div>
+            </div>
+
+            <div class="receipt-body">
+                <!-- Customer Info -->
+                <div class="receipt-section">
+                    <div class="receipt-row">
+                        <span class="receipt-row-label">Customer:</span>
+                        <span class="receipt-row-value"><%= custName %></span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-row-label">Phone:</span>
+                        <span class="receipt-row-value">📞 <%= custPhone %></span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="receipt-row-label">Date &amp; Time:</span>
+                        <span class="receipt-row-value" id="receiptDateTime">—</span>
+                    </div>
+                </div>
+
+                <!-- Items header -->
+                <div class="receipt-section">
+                    <div style="font-weight:700;font-size:12px;color:#373279;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #ede9ff;display:grid;grid-template-columns:1fr 50px 70px 80px;gap:6px;">
+                        <span>Product</span>
+                        <span style="text-align:center;">Qty</span>
+                        <span style="text-align:right;">Rate</span>
+                        <span style="text-align:right;">Amount</span>
+                    </div>
+                    <div id="receiptItems"></div>
+                </div>
+
+                <!-- Grand total -->
+                <div class="receipt-grand">
+                    <div>
+                        <span class="rg-label">TOTAL CREDIT ADDED</span>
+                        <span id="receiptGrandTotal">₹ 0.00</span>
+                    </div>
+                    <span style="font-size:28px;opacity:0.5;">💳</span>
+                </div>
+
+                <!-- Footer -->
+                <div class="receipt-footer">
+                    <p style="margin:0;padding:6px 0;">Credit added to account</p>
+                    <p style="margin:0;font-size:10px;color:#bbb;">खात्यावर उधार जमा केली</p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="receipt-actions">
+                <button class="btn-receipt-action btn-receipt-print" onclick="printAndSave()">
+                    🖨️
+                    <span class="lang-name-en">Print &amp; Save</span>
+                    <span class="lang-name-mr" style="display:none;">छापा आणि जतन करा</span>
+                </button>
+                <button class="btn-receipt-action btn-receipt-skip" onclick="skipAndSave()">
+                    <span class="lang-name-en">Skip &amp; Save</span>
+                    <span class="lang-name-mr" style="display:none;">वगळून जतन करा</span>
+                </button>
+            </div>
+
         </div>
     </div>
 
@@ -242,15 +429,17 @@
 
 <script src="js/i18n.js"></script>
 <script>
-var PRODUCTS = <%= productsJson.toString() %>;
-var tableRows = [];
-var rowSeq = 0;
+var PRODUCTS   = <%= productsJson.toString() %>;
+var SHOP_NAME  = "<%= shopEnglishName.replace("\"","\\\"") %>";
+var CUST_NAME  = "<%= custName.replace("\"","\\\"") %>";
+var CUST_PHONE = "<%= custPhone %>";
+var tableRows  = [];
+var rowSeq     = 0;
 
-// Apply i18n to dynamic strings
 function getLang() { return (typeof i18n !== 'undefined') ? i18n.getLang() : 'en'; }
 function isMr()    { return getLang() === 'mr'; }
 
-// Populate product dropdown
+// ── Populate product dropdown ─────────────────────────────────────────
 (function() {
     var sel = document.getElementById('productId');
     var ph  = document.getElementById('prodPlaceholder');
@@ -306,8 +495,8 @@ function addToTable() {
     var pid   = parseInt(sel.value, 10);
     var qty   = parseInt(document.getElementById('qty').value, 10);
     var price = parseFloat(document.getElementById('unitPrice').value);
+    var mr    = isMr();
 
-    var mr = isMr();
     if (!pid)              { alert(mr ? '⚠️ कृपया उत्पाद निवडा.'         : '⚠️ Please select a product.');           return; }
     if (!qty || qty <= 0)  { alert(mr ? '⚠️ कृपया योग्य प्रमाण टाका.'   : '⚠️ Please enter a valid quantity.');     return; }
     if (!price || price <= 0) { alert(mr ? '⚠️ कृपया योग्य किंमत टाका.' : '⚠️ Please enter a valid unit price.');   return; }
@@ -332,8 +521,8 @@ function addToTable() {
 }
 
 function renderTable() {
-    var tbody  = document.getElementById('txnBody');
-    var mr     = isMr();
+    var tbody = document.getElementById('txnBody');
+    var mr    = isMr();
     tbody.innerHTML = '';
     if (tableRows.length === 0) {
         tbody.innerHTML = '<tr class="empty-msg"><td colspan="6">' +
@@ -367,7 +556,7 @@ function updateGrandTotal() {
     document.getElementById('footerGrand').textContent = '₹ ' + grand.toFixed(2);
     document.getElementById('grandDisplay').textContent = '₹ ' + grand.toFixed(2);
     var n = tableRows.length;
-    document.getElementById('grandCount').textContent   = n + (mr ? ' आयटम' : ' item(s)');
+    document.getElementById('grandCount').textContent     = n + (mr ? ' आयटम' : ' item(s)');
     document.getElementById('itemCountBadge').textContent = n + (mr ? ' आयटम' : ' item' + (n !== 1 ? 's' : ''));
 }
 
@@ -379,18 +568,123 @@ function resetForm() {
     document.getElementById('rowTotalPreview').style.display = 'none';
 }
 
-function submitTransaction() {
+// ══════════════════════════════════════════════════════
+//  RECEIPT LOGIC
+// ══════════════════════════════════════════════════════
+
+function showReceiptModal() {
     var mr = isMr();
     if (tableRows.length === 0) {
         alert(mr ? '⚠️ जतन करण्यापूर्वी किमान एक उत्पाद जोडा.' : '⚠️ Please add at least one product to the table before saving.');
         return;
     }
+
+    // Set date/time
+    var now = new Date();
+    document.getElementById('receiptDateTime').textContent =
+        now.toLocaleString(mr ? 'mr-IN' : 'en-IN', {
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit'
+        });
+
+    // Build items HTML
+    var grand = 0;
+    var itemsHTML = '';
+    tableRows.forEach(function(r) {
+        grand += r.amount;
+        itemsHTML +=
+            '<div class="receipt-item-row">' +
+            '<span class="col-name">' + r.productName + '</span>' +
+            '<span class="col-qty">'  + r.qty + '</span>' +
+            '<span class="col-price">₹' + r.unitPrice.toFixed(2) + '</span>' +
+            '<span class="col-amt">₹'  + r.amount.toFixed(2)    + '</span>' +
+            '</div>';
+    });
+    document.getElementById('receiptItems').innerHTML     = itemsHTML;
+    document.getElementById('receiptGrandTotal').textContent = '₹ ' + grand.toFixed(2);
+
+    // Show modal
+    document.getElementById('receiptModal').classList.add('show');
+}
+
+function printAndSave() {
+    // Build print window
+    var mr        = isMr();
+    var shopName  = SHOP_NAME;
+    var grand     = 0;
+    var itemsHTML = '';
+    tableRows.forEach(function(r) {
+        grand += r.amount;
+        var bg = (itemsHTML.split('<tr').length % 2 === 0) ? 'background:#f5f3ff;' : '';
+        itemsHTML +=
+            '<tr style="' + bg + '">' +
+            '<td style="padding:8px 10px;border-bottom:1px solid #ede9ff;">' + r.productName + '</td>' +
+            '<td style="padding:8px 10px;border-bottom:1px solid #ede9ff;text-align:center;font-weight:700;color:#2b0d73;">' + r.qty + '</td>' +
+            '<td style="padding:8px 10px;border-bottom:1px solid #ede9ff;text-align:right;">₹' + r.unitPrice.toFixed(2) + '</td>' +
+            '<td style="padding:8px 10px;border-bottom:1px solid #ede9ff;text-align:right;font-weight:700;color:#1b5e20;">₹' + r.amount.toFixed(2) + '</td>' +
+            '</tr>';
+    });
+
+    var now     = new Date();
+    var dateStr = now.toLocaleString('en-IN', {
+        year:'numeric', month:'2-digit', day:'2-digit',
+        hour:'2-digit', minute:'2-digit'
+    });
+
+    var html =
+        '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Credit Receipt</title>' +
+        '<style>body{font-family:Arial,sans-serif;margin:30px;color:#0d1b2a;font-size:13px;}' +
+        '.hdr{text-align:center;border-bottom:3px double #2b0d73;padding-bottom:14px;margin-bottom:16px;}' +
+        '.shop{font-size:22px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#2b0d73;}' +
+        '.ttl{font-size:13px;font-weight:600;color:#4a5568;margin-top:4px;}' +
+        '.info{background:#f5f3ff;border:1px solid #c8b7f6;border-radius:6px;padding:10px 14px;margin-bottom:14px;display:grid;grid-template-columns:1fr 1fr;gap:6px;}' +
+        '.il{font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px;}' +
+        '.iv{font-size:13px;font-weight:700;color:#0d1b2a;}' +
+        'table{width:100%;border-collapse:collapse;}' +
+        'th{background:#2b0d73;color:#fff;padding:8px 10px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;}' +
+        'tfoot td{background:#f5f3ff;font-weight:700;border-top:2px solid #2b0d73;padding:9px 10px;}' +
+        '.footer{margin-top:14px;text-align:center;font-size:10px;color:#94a3b8;border-top:1px dashed #c8b7f6;padding-top:8px;}' +
+        '@media print{body{margin:12px;}}</style></head><body>' +
+        '<div class="hdr"><div class="shop">' + shopName + '</div>' +
+        '<div class="ttl">🧾 Credit Receipt</div>' +
+        '<div style="font-size:11px;color:#94a3b8;margin-top:4px;">' + dateStr + '</div></div>' +
+        '<div class="info">' +
+        '<div><div class="il">Customer</div><div class="iv">' + CUST_NAME + '</div></div>' +
+        '<div><div class="il">Phone</div><div class="iv">' + CUST_PHONE + '</div></div>' +
+        '</div>' +
+        '<table><thead><tr><th>Product</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Rate (₹)</th><th style="text-align:right;">Amount (₹)</th></tr></thead>' +
+        '<tbody>' + itemsHTML + '</tbody>' +
+        '<tfoot><tr><td colspan="3" style="text-align:right;">Total Credit Added</td>' +
+        '<td style="text-align:right;font-size:15px;">₹ ' + grand.toFixed(2) + '</td></tr></tfoot></table>' +
+        '<div class="footer">' + shopName + ' · Credit added to account · ' + dateStr + '</div>' +
+        '</body></html>';
+
+    var pw = window.open('', '', 'height=600,width=480');
+    pw.document.write(html);
+    pw.document.close();
+    pw.print();
+
+    // Save after a short delay to let print dialog open
+    setTimeout(function() { doSave(); }, 400);
+}
+
+function skipAndSave() {
+    doSave();
+}
+
+function doSave() {
     var items = tableRows.map(function(r) {
         return { productId: r.productId, productName: r.productName, quantity: r.qty, unitPrice: r.unitPrice, amount: r.amount };
     });
     document.getElementById('itemsJsonInput').value = JSON.stringify(items);
+    document.getElementById('receiptModal').classList.remove('show');
     document.getElementById('submitForm').submit();
 }
+
+// Close modal on backdrop click
+document.getElementById('receiptModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('show');
+});
 </script>
 </body>
 </html>
