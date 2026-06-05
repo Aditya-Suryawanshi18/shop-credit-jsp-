@@ -108,7 +108,43 @@
         .grand-bar .g-label { font-size:13px;color:#ffd8b0;font-weight:600; }
         .grand-bar .g-val   { font-size:22px;font-weight:800;color:#ffe082; }
         .grand-bar .g-count { font-size:11px;color:#ffc070;margin-top:1px; }
-        .save-row { display:flex;gap:14px;margin-top:16px;justify-content:flex-end; }
+        .save-row { display:flex;gap:14px;margin-top:16px;justify-content:flex-end;flex-wrap:wrap;align-items:center; }
+
+        /* ── Upload Bill button ── */
+        .btn-upload-bill {
+            display:inline-flex;align-items:center;gap:8px;
+            padding:10px 20px;
+            background:#fff;
+            border:2px solid #f5c89a;
+            border-radius:9px;
+            font-family:'Outfit',sans-serif;
+            font-size:14px;font-weight:700;
+            color:#7a3800;cursor:pointer;
+            transition:all 0.2s;
+            white-space:nowrap;
+        }
+        .btn-upload-bill:hover { background:#fff3e0;border-color:#d4681a; }
+        .btn-upload-bill.has-file { background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20; }
+
+        /* ── Bill preview strip ── */
+        .bill-preview-strip {
+            display:none;align-items:center;gap:10px;
+            margin-top:10px;
+            background:#fff8f0;
+            border:1px solid #f5c89a;
+            border-radius:8px;
+            padding:9px 14px;
+            font-size:13px;color:#7a3800;
+        }
+        .bill-preview-strip .bill-name { font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+        .bill-preview-strip .bill-size { font-size:11px;color:#aaa;white-space:nowrap; }
+        .btn-clear-bill {
+            width:24px;height:24px;background:#ffebee;color:#e53935;
+            border:none;border-radius:5px;font-size:13px;font-weight:700;
+            cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+            flex-shrink:0;transition:background 0.2s;line-height:1;
+        }
+        .btn-clear-bill:hover { background:#e53935;color:#fff; }
     </style>
 </head>
 <body>
@@ -234,14 +270,33 @@
                 <span style="font-size:32px;opacity:0.35;">📦</span>
             </div>
 
+            <!-- Save Row with Upload Bill button -->
             <div class="save-row">
                 <a href="view_dealers.jsp" class="btn-clear"
                    style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:10px 28px;"
                    data-i18n="btn.cancel">Cancel</a>
+
+                <!-- Upload Bill button -->
+                <label id="uploadBillBtn" class="btn-upload-bill" title="Upload PDF or image bill">
+                    📎
+                    <span class="lang-name-en">Upload Bill</span>
+                    <span class="lang-name-mr" style="display:none;">बिल अपलोड करा</span>
+                    <input type="file" id="billFileInput" accept=".pdf,image/*"
+                           style="display:none;" onchange="onBillFileSelected(this)">
+                </label>
+
                 <button type="button" class="btn-save" onclick="submitTransaction()">
                     💾 <span class="lang-name-en">Save Credit &amp; Update Stock</span>
                     <span class="lang-name-mr" style="display:none;">उधार जतन करा &amp; स्टॉक अपडेट करा</span>
                 </button>
+            </div>
+
+            <!-- Bill preview strip (shown after file selected) -->
+            <div class="bill-preview-strip" id="billPreviewStrip">
+                <span>📎</span>
+                <span class="bill-name" id="billFileName">—</span>
+                <span class="bill-size" id="billFileSize"></span>
+                <button class="btn-clear-bill" onclick="clearBill()" title="Remove file">✕</button>
             </div>
         </div>
     </div>
@@ -255,9 +310,11 @@
 <script src="js/i18n.js"></script>
 <script>
 var PRODUCTS = <%= productsJson.toString() %>;
+var DEALER_ID = <%= dealerId %>;
 var tableRows = [];
 var rowSeq = 0;
 var currentStock = 0;
+var billFileData = null;   // { name, size, type, base64 }
 
 function getLang() { return (typeof i18n !== 'undefined') ? i18n.getLang() : 'en'; }
 function isMr()    { return getLang() === 'mr'; }
@@ -394,12 +451,105 @@ function resetForm() {
     currentStock = 0;
 }
 
+// ── Upload Bill ────────────────────────────────────────────────────────────
+
+function onBillFileSelected(input) {
+    var file = input.files[0];
+    if (!file) return;
+
+    var maxSize = 5 * 1024 * 1024; // 5 MB
+    if (file.size > maxSize) {
+        var mr = isMr();
+        alert(mr ? '⚠️ फाइल खूप मोठी आहे. जास्तीत जास्त 5 MB परवानगी आहे.' : '⚠️ File too large. Maximum 5 MB allowed.');
+        input.value = '';
+        return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        billFileData = {
+            name:   file.name,
+            size:   file.size,
+            type:   file.type,
+            base64: e.target.result   // full data URL
+        };
+        document.getElementById('billFileName').textContent = file.name;
+        document.getElementById('billFileSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
+        document.getElementById('billPreviewStrip').style.display = 'flex';
+        document.getElementById('uploadBillBtn').classList.add('has-file');
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearBill() {
+    billFileData = null;
+    document.getElementById('billFileInput').value = '';
+    document.getElementById('billPreviewStrip').style.display = 'none';
+    document.getElementById('uploadBillBtn').classList.remove('has-file');
+}
+
+function saveBillToLocalStorage(dealerId, grandTotal) {
+    if (!billFileData) return;
+
+    var STORAGE_KEY = 'dealer_bills';
+    var bills = [];
+    try {
+        var existing = localStorage.getItem(STORAGE_KEY);
+        if (existing) bills = JSON.parse(existing);
+        if (!Array.isArray(bills)) bills = [];
+    } catch(e) { bills = []; }
+
+    var entry = {
+        id:        Date.now(),
+        dealerId:  dealerId,
+        dealerName: '<%= dealerName.replace("'", "\\'") %>',
+        amount:    parseFloat(grandTotal.toFixed(2)),
+        date:      new Date().toISOString(),
+        fileName:  billFileData.name,
+        fileType:  billFileData.type,
+        fileSize:  billFileData.size,
+        fileData:  billFileData.base64
+    };
+
+    bills.unshift(entry);   // newest first
+
+    // Keep only last 50 bills to avoid storage overflow
+    if (bills.length > 50) bills = bills.slice(0, 50);
+
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(bills));
+    } catch(e) {
+        // Storage quota exceeded — try without file data
+        try {
+            entry.fileData = null;
+            entry.storageError = 'File data omitted due to storage quota';
+            bills[0] = entry;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(bills));
+        } catch(e2) {
+            var mr = isMr();
+            alert(mr
+                ? '⚠️ बिल जतन केले, परंतु स्थानिक स्टोरेज भरले आहे.'
+                : '⚠️ Bill saved to transaction but local storage is full.');
+        }
+    }
+}
+
+// ── Submit ─────────────────────────────────────────────────────────────────
+
 function submitTransaction() {
     var mr = isMr();
     if (tableRows.length === 0) {
         alert(mr ? '⚠️ जतन करण्यापूर्वी किमान एक उत्पाद जोडा.' : '⚠️ Please add at least one product to the table before saving.');
         return;
     }
+
+    // Calculate grand total for bill metadata
+    var grandTotal = 0;
+    tableRows.forEach(function(r) { grandTotal += r.amount; });
+
+    // Save bill to localStorage BEFORE form submit (page navigates away after submit)
+    saveBillToLocalStorage(DEALER_ID, grandTotal);
+
     var items = tableRows.map(function(r) {
         return { productId: r.productId, productName: r.productName, quantity: r.qty, unitPrice: r.unitPrice, amount: r.amount };
     });
